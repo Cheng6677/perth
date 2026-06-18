@@ -98,24 +98,34 @@ nav.tabbar{
   display:flex;
   background:var(--surface);
   border-top:1px solid var(--line);
-  padding:8px 2px max(12px, env(safe-area-inset-bottom)) 2px;
+  padding:6px 0 max(12px, env(safe-area-inset-bottom)) 0;
   z-index:50;
   overflow-x:auto;
   box-shadow: 0 -4px 16px rgba(43,38,34,.06);
+  justify-content:space-around;
 }
 nav.tabbar button{
-  flex:1; min-width:55px;
+  flex:0 1 calc(100% / 7);
+  min-width:50px;
   background:none;border:none;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
   padding:4px 2px;
   color:var(--ink-faint);
-  font-size:11px;
+  font-size:10px;
   cursor:pointer;
   border-radius:10px;
+  transition:all 0.2s ease;
 }
-nav.tabbar button svg{width:22px;height:22px;}
+nav.tabbar button svg{width:20px;height:20px;}
 nav.tabbar button.active{color:var(--accent-deep);font-weight:700;}
 nav.tabbar button.active svg{stroke:var(--accent-deep);}
+@media (max-width:480px){
+  nav.tabbar button{
+    font-size:9px;
+    padding:3px 1px;
+  }
+  nav.tabbar button svg{width:18px;height:18px;}
+}
 
 /* ---------- shared components ---------- */
 .card{
@@ -228,6 +238,46 @@ nav.tabbar button.active svg{stroke:var(--accent-deep);}
 
 iframe.budget-frame{width:100%;height:68vh;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;}
 .openlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--indigo);margin-top:10px;}
+
+/* customs dialogue */
+.dialogue-bubble{
+  margin-bottom:14px;
+  padding:12px;
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+}
+.dialogue-bubble.officer{
+  background:#F0F0F0;
+  margin-right:20px;
+}
+.dialogue-bubble.you{
+  background:var(--accent-soft);
+  margin-left:20px;
+}
+.dialogue-speaker{
+  font-weight:700;
+  font-size:12px;
+  margin-bottom:6px;
+  color:var(--ink-soft);
+}
+.dialogue-bubble.officer .dialogue-speaker{
+  color:var(--indigo);
+}
+.dialogue-bubble.you .dialogue-speaker{
+  color:var(--accent-deep);
+}
+.dialogue-english{
+  font-weight:700;
+  font-size:14px;
+  color:var(--accent-deep);
+  margin-bottom:4px;
+}
+.dialogue-chinese{
+  font-size:13px;
+  color:var(--ink);
+  line-height:1.5;
+}
 </style>
 </head>
 <body>
@@ -265,7 +315,7 @@ iframe.budget-frame{width:100%;height:68vh;border:1px solid var(--line);border-r
             <div class="tl-date">7月5日（日）</div>
             <div class="tl-time">04:15 抵達轉機</div>
             <div class="tl-place">SIN 新加坡樟宜機場 T1</div>
-            <div class="layover">轉機 <b>10時5分</b> · 行理直掛，免提取 → 詳見「新加坡轉機」分頁</div>
+            <div class="layover">轉機 <b>10時5分</b> · 行李直掛，免提取 → 詳見「新加坡轉機」分頁</div>
             <div class="tl-time">14:20 出發</div>
             <div class="tl-place">SIN 樟宜機場 T1</div>
             <div class="tl-flight">TR004 · 波音787-8 · 經濟艙H</div>
@@ -290,7 +340,7 @@ iframe.budget-frame{width:100%;height:68vh;border:1px solid var(--line);border-r
             <div class="tl-date">7月20日（一）</div>
             <div class="tl-time">23:45 抵達轉機</div>
             <div class="tl-place">SIN 樟宜機場 T1</div>
-            <div class="layover">轉機 <b>1時15分</b>（隔日轉機）· 行理直掛 · 兩段都在 T1 航廈</div>
+            <div class="layover">轉機 <b>1時15分</b>（隔日轉機）· 行李直掛 · 兩段都在 T1 航廈</div>
             <div class="tl-date">7月21日（二）</div>
             <div class="tl-time">01:00 出發</div>
             <div class="tl-place">SIN 樟宜機場 T1</div>
@@ -481,18 +531,15 @@ function initTabNavigation() {
     const pageId = btn.dataset.page;
     if (!pageId) return;
 
-    // 更新按鈕狀態
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
 
-    // 更新頁面顯示
     document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
     const targetPage = document.getElementById(pageId);
     if (targetPage) {
       targetPage.classList.add("active");
     }
 
-    // 更新標題
     const titleEl = document.getElementById("pageTitle");
     if (titleEl && TITLES[pageId]) {
       titleEl.textContent = TITLES[pageId];
@@ -506,8 +553,8 @@ function initTabNavigation() {
    旅程進度計算
 ============================================================ */
 function initTripStatus() {
-  const start = new Date(2026,6,5); // 7月5日
-  const end = new Date(2026,6,21);  // 7月21日
+  const start = new Date(2026,6,5);
+  const end = new Date(2026,6,21);
   const now = new Date();
   const el = document.getElementById("tripStatus");
   if (!el) return;
@@ -647,7 +694,7 @@ function initPacking() {
 }
 
 /* ============================================================
-   PAGE 3 — 行程數據
+   PAGE 3 — 行程數據 (簡化版本)
 ============================================================ */
 const days = [
 {
@@ -666,142 +713,6 @@ const days = [
     {tag:"晚餐", name:"Hifumiya Udon (市區)", note:"超人氣平價日式手打烏龍麵。人均約 AU$18。", dest:"Hifumiya Udon, Perth CBD", tags:[["tag-eat","必吃美食","牛肉冷烏龍麵 / 現炸蔬菜天婦羅"]]}
   ],
   prep:"國王公園園區遼闊，建議著舒適步鞋。傍晚碼頭河風強勁，請備妥外套。"
-},
-{
-  no:2, date:"7月8日（三）", title:"弗里曼特爾港口小鎮 Fremantle",
-  sub:"古蹟巡禮與歐風海港街景", budget:"整天預估花費：約台幣 1,100 元",
-  weather:"🌧️ 天氣預報：10°C - 16°C ▎多雲、局部冬日陣雨",
-  story:"弗里曼特爾是保存完好的 19 世紀港口城鎮，古老的維多利亞風格建築林立。圓屋（Round House）建於 1831 年，是西澳最古老的公共古蹟；著名的卡布奇諾街則充滿露天咖啡座，洋溢濃厚歐洲風情。",
-  transport:{text:"自住處搭公車至 Canning Bridge Station，轉乘 <b>910 號公車</b> 直達終點 Fremantle 火車站，所有核心景點出站後皆可步行抵達。", dest:"Fremantle Station, Fremantle WA 6160", mode:"transit"},
-  spots:[
-    {name:"弗里曼特爾市集 Fremantle Markets", dest:"Fremantle Markets, South Terrace, Fremantle WA 6160", note:"百年傳統市集，集結手工藝品與異國美食小吃。"},
-    {name:"圓屋 Round House ＆ 漁港步道", dest:"The Round House, Fremantle WA 6160", note:"登頂可一覽歷史漁港與印度洋的壯闊海景。"}
-  ],
-  meals:[
-    {tag:"早餐", name:"Moore & Moore Cafe", note:"由歷史藝術村建物改建的質感咖啡廳。人均約 AU$20。", dest:"Moore & Moore Cafe, Fremantle", tags:[["tag-menu","必點菜單","酪梨酸種麵包佐水波蛋"]]},
-    {tag:"午餐", name:"Fremantle Markets 內部小吃", note:"各國排檔美味聚集。人均約 AU$15-25。", dest:"Fremantle Markets, Fremantle", tags:[["tag-eat","必吃美食","傳統蜂蜜蛋糕 / 澳式手工肉派"]]},
-    {tag:"晚餐", name:"Cicerello's (漁港店)", note:"港邊百年字號傳統海鮮餐廳。人均約 AU$25-35。", dest:"Cicerello's Fremantle", tags:[["tag-eat","必吃美食","招牌經典炸魚薯條拼盤 (Fish & Chips)"]]}
-  ],
-  prep:"<b>【重要預約】</b>：若計畫參觀著名的弗里曼特爾監獄世界遺產導覽，建議提早於官網線上預約。注意市集僅在週五、六、日開放。"
-},
-{
-  no:3, date:"7月10日（五）", title:"卡弗沙姆野生動物園 ＆ 天鵝谷酒莊",
-  sub:"親近袋鼠與品味鄉村小鎮", budget:"整天預估花費：約台幣 2,200 元",
-  weather:"🌤️ 天氣預報：12°C - 18°C ▎晴時多雲、極為舒適",
-  story:"天鵝谷是西澳最古老的葡萄酒鄉，沿途充滿精緻酒莊與手工食品坊。毗鄰的卡弗沙姆野生動物園則能讓你一睹無尾熊、袋鼠與塔斯馬尼亞惡魔等澳洲特有生物的風采。",
-  transport:{text:"搭公車到伯斯車站，轉乘 <b>Ellenbrook 線火車</b> 直達 Whiteman Park 站（26分鐘）。下車後<b>轉搭 Uber 僅需台幣約 200 元</b>，完全符合預算標準！", dest:"Caversham Wildlife Park, Whiteman WA 6068", mode:"transit"},
-  spots:[
-    {name:"卡弗沙姆野生動物園 Caversham Wildlife Park", dest:"Caversham Wildlife Park, Whiteman WA 6068", note:"可免費與無尾熊拍照、親手餵食袋鼠。"},
-    {name:"吉爾福德歷史老鎮 (Guildford)", dest:"Guildford WA 6055", note:"保留 19 世紀殖民色彩的古典鄉村街道。"}
-  ],
-  meals:[
-    {tag:"午餐", name:"Mandoon Estate (酒莊景觀餐廳)", note:"綠草如茵的頂級酒莊。人均約 AU$28。", dest:"Mandoon Estate, Caversham", tags:[["tag-eat","必吃美食","精選酒莊輕食 / 在地起司拼盤"]]},
-    {tag:"伴手禮", name:"Margaret River Chocolate Co.", note:"可自由試吃的巨型巧克力工廠。人均約 AU$15。", dest:"Margaret River Chocolate Company, Swan Valley", tags:[["tag-buy","必買伴手禮","頂級手工綜合巧克力禮盒 / 澳洲堅果風味豆"]]},
-    {tag:"晚餐", name:"吉爾福德老鎮英式小酒館", note:"極具歷史感的老牌家庭餐館。人均約 AU$25。", dest:"Guildford Hotel, Guildford", tags:[["tag-menu","必點菜單","經典澳式烤冷牛肉排"]]}
-  ],
-  prep:"<b>【重要預約代號】</b>：動物園門票建議提前線上購票，並在代碼框內編輯記下預約代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。"
-},
-{
-  no:4, date:"7月12日（日）", title:"羅特尼斯島 Rottnest Island 一日遊",
-  sub:"造訪短尾矮袋鼠的純淨無車島", budget:"整天預估花費：約台幣 3,300 元",
-  weather:"🌤️ 天氣預報：12°C - 18°C ▎印度洋海風強勁、體感偏涼",
-  story:"羅特尼斯島是西澳最神盛的度假海島。全島禁止私家汽車通行，環境極其純淨，這裏是世界上唯一能看見野生微笑袋鼠 Quokka 的原產地，生態極其珍貴。",
-  transport:{text:"搭乘公車前往 Fremantle 的 <b>B Shed 渡輪碼頭</b>，再搭乘已預約的高速渡輪直達海島（船程約 30 分鐘）。島上建議租借腳踏車移動。", dest:"Victoria Quay, Fremantle WA 6160", mode:"transit"},
-  spots:[
-    {name:"湯姆森灣 Thomson Bay 核心商圈", dest:"Thomson Bay, Rottnest Island", note:"尋找微笑短尾矮袋鼠 Quokka 的最佳出沒點。"},
-    {name:"小沙灘 The Basin 天然海池", dest:"The Basin, Rottnest Island", note:"擁有水晶般透明度的海灣，冬季前來拍照亦極美。"}
-  ],
-  meals:[
-    {tag:"早餐", name:"住處自備平價輕食", note:"因清晨船班較早，建議在 Manning 住處自備簡單三明治。", dest:"Manning WA 6152", tags:[]},
-    {tag:"午餐", name:"Rottnest Island Bakery", note:"島上唯一的百年平價經典烘焙店。人均約 AU$15。", dest:"Rottnest Island Bakery", tags:[["tag-eat","必吃美食","多汁現烤澳式牛肉鹹派 (Meat Pie) / 傳統烘焙肉捲"]]},
-    {tag:"晚餐", name:"Bull Creek Hawker (星馬排檔)", note:"回程在 Bull Creek 火車站下車順道享用。人均約 AU$20。", dest:"Bull Creek Hawker", tags:[["tag-menu","必點菜單","招牌濃郁新加坡咖哩叻沙麵 / 海南雞飯"]]}
-  ],
-  prep:"<b>【重要預約代號】</b>：來回渡輪船票（含上島費）極為熱門，務必提前線上預約。記下您的預約船班代碼：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。冬季海風強，請備妥防風連帽外套與暈船藥。"
-},
-{
-  no:5, date:"7月14日（二）", title:"希拉里斯港 ＆ 西澳水族館 AQWA",
-  sub:"漫步北郊巨型遊艇休閒碼頭", budget:"整天預估花費：約台幣 1,900 元",
-  weather:"🌧️ 天氣預報：10°C - 16°C ▎多雲、有冬日局部短暫陣雨",
-  story:"希拉里斯港是伯斯北郊設備極其完善的避風港灣，AQWA 水族館則擁有全長 100 公尺的巨型海底隧道，展出西澳沿海特有的豐富海洋生態與巨大魟魚。",
-  transport:{text:"搭公車至市區轉運站，轉乘北線大眾運輸公車前往。下車後<b>轉搭 Uber 僅需台幣約 180 元</b>，省時省力！", dest:"AQWA, Hillarys WA 6025", mode:"transit"},
-  spots:[
-    {name:"西澳水族館 AQWA", dest:"AQWA, Hillarys WA 6025", note:"門票約 AU$34。擁有極宏偉的海底步行隧道。"},
-    {name:"希拉里斯港休閒碼頭 Hillarys Boat Harbour", dest:"Hillarys Boat Harbour, Hillarys WA 6025", note:"停滿高級遊艇的歐式美麗海港，設有眾多露天小店。"}
-  ],
-  meals:[
-    {tag:"早餐", name:"Mary Street Bakery (港區分店)", note:"西澳家喻戶曉的人氣經典烘焙坊。人均約 AU$20。", dest:"Mary Street Bakery, Hillarys", tags:[["tag-menu","必點菜單","招牌熔岩肉桂捲 / 爆漿經典甜甜圈"]]},
-    {tag:"午餐", name:"The Boardwalk 景觀餐廳", note:"直面港灣遊艇美景的平價美式簡餐。人均約 AU$24。", dest:"The Boardwalk, Hillarys", tags:[["tag-eat","必吃美食","脆皮美式起司漢堡 / 酥炸魷魚圈"]]},
-    {tag:"晚餐", name:"北橋區亞洲街頭料理", note:"回程在北橋區享用熱熱的熱湯麵。人均約 AU$18。", dest:"Northbridge, Perth", tags:[]}
-  ],
-  prep:"<b>【重要預約代號】</b>：AQWA 水族館門票建議線上提前預訂，填寫代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。館內冷氣空調較強，建議多備一件薄外套。"
-},
-{
-  no:6, date:"7月16日（四）", title:"科特斯洛海灘 ＆ 斯卡伯勒海灘",
-  sub:"沿著印度洋海岸線追逐落日", budget:"整天預估花費：約台幣 1,600 元",
-  weather:"🌤️ 天氣預報：11°C - 16°C ▎晴朗、印度洋海風極其強勁",
-  story:"科特斯洛海灘是伯斯的指標性沙灘，建於百年前的 Indiana Tea House 巍峨矗立在沙灘旁。斯卡伯勒海灘則是著名的夕陽大道，聚集了無數極具活力、看落日的衝浪風格小店。",
-  transport:{text:"搭乘 <b>Fremantle 線火車</b> 直達 Cottesloe 站，步行 10 分鐘到海灘。結束後兩個海灘間距離 8 公里，<b>搭乘 Uber 接駁僅需台幣約 220 元</b>，極度推薦此走法！", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", mode:"transit"},
-  spots:[
-    {name:"科特斯洛海灘 Cottesloe Beach", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", note:"伯斯最負盛名的白色海灘，日落景緻冠絕西澳。"},
-    {name:"斯卡伯勒夕陽大道 Scarborough Sunset Strip", dest:"Scarborough Beach, WA 6019", note:"伯斯最熱鬧的海濱特區，夕陽時分氣氛極佳。"}
-  ],
-  meals:[
-    {tag:"早餐", name:"Laika Coffee (南區住所附近)", note:"出發前先在 Manning 附近的頂級咖啡店用餐。人均約 AU$20。", dest:"Laika Coffee, Lathlain", tags:[["tag-menu","必點菜單","經典英式大拼盤餐佐拿鐵咖啡"]]},
-    {tag:"午餐", name:"Amberjacks (科特斯洛店)", note:"海灘第一排高評價炸魚薯條. 人均約 AU$20。", dest:"Amberjacks Cottesloe", tags:[["tag-eat","必吃美食","外帶鱈魚薯條至沙灘長椅野餐"]]},
-    {tag:"晚餐", name:"El Grotto (斯卡伯勒)", note:"海濱道地墨式酒吧餐館。人均約 AU$28。", dest:"El Grotto, Scarborough", tags:[["tag-eat","必吃美食","鮮美手撕豬肉塔可餅 (Tacos)"]]}
-  ],
-  prep:"7 月冬季的落日時間準時在下午 17:30 左右，海邊風勢非常強大，建議在 16:30 前完成卡位，並穿戴保暖毛帽與防風防寒大衣。"
-},
-{
-  no:7, date:"7月18日（六）", title:"伯斯動物園 ＆ 南伯斯河岸老磨坊",
-  sub:"體驗經典天鵝河通勤渡輪", budget:"整天預估花費：約台幣 2,000 元",
-  weather:"🌤️ 天氣預報：12°C - 17°C ▎多雲時晴、氣候宜人",
-  story:"伯斯動物園創立於 1898 年，是澳洲歷史最悠久的動物園之一，園內保留許多殖民時期老建築。南伯斯河岸的老磨坊 (Old Mill) 則建於 1835 年，是伯斯最早用於生產麵粉的開拓建築，富含濃厚的拓荒歷史故事。",
-  transport:{text:"從 Manning 搭公車至伊麗莎白碼頭，直接在碼頭轉乘官方<b>天鵝河過河交通渡輪 (Ferry)</b> 直達南伯斯動物園碼頭，全程約 35 分鐘，渡輪景致極佳。", dest:"Perth Zoo, South Perth WA 6151", mode:"transit"},
-  spots:[
-    {name:"伯斯動物園 Perth Zoo", dest:"Perth Zoo, South Perth WA 6151", note:"門票約 AU$37。可近距離一睹澳洲丁狗 (Dingo) 與袋熊。"},
-    {name:"南伯斯老磨坊古蹟 Old Mill", dest:"Old Mill, South Perth WA 6151", note:"伯斯拓荒時期的風力磨坊古蹟，對外免費參觀。"}
-  ],
-  meals:[
-    {tag:"早餐", name:"Community Coffee Co. (市區店)", note:"伯斯職人界精品烘豆名店。人均約 AU$15。", dest:"Community Coffee Co., Perth", tags:[["tag-menu","必點菜單","單品手沖豆咖啡 / 脆皮牛角可頌"]]},
-    {tag:"午餐", name:"Perth Zoo Café", note:"動物園內置的便利景觀輕食餐廳。人均約 AU$20。", dest:"Perth Zoo"},
-    {tag:"晚餐", name:"Coode Street 河岸餐酒一條街", note:"南伯斯最知名的景觀餐飲聚落。人均約 AU$26。", dest:"Coode St, South Perth", tags:[["tag-eat","必吃美食","窯烤雞肉總匯披薩配天鵝河夜景"]]}
-  ],
-  prep:"<b>【重要預約代號】</b>：動物園門票可線上預約電子票。記下代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。園區占地大，建議安排至少 3 小時。"
-},
-{
-  no:8, date:"7月19日（日）", title:"北橋藝文特區 ＆ 博物館最後巡禮",
-  sub:"多元文化與歷史常設展", budget:"整天預估花費：約台幣 1,100 元",
-  weather:"🌤️ 天氣預報：11°C - 17°C ▎冬令清朗、適合室內藝文行程",
-  story:"北橋（Northbridge）是伯斯多元文化的融爐。緊鄰的西澳博物館 Boola Bardip 於近期重新翻修完成，用極其震撼的視覺建築，向世人展示這片西澳大陸的自然史與深刻的原住民文化故事。",
-  transport:{text:"自 Manning 直接搭乘 <b>30 或 31 號公車</b> 直達市區伊麗莎白碼頭，步行或穿過地下通道前往北橋文化中心，全程僅 30 分鐘。", dest:"WA Museum Boola Bardip, Perth WA 6000", mode:"transit"},
-  spots:[
-    {name:"西澳博物館 Boola Bardip", dest:"WA Museum Boola Bardip, Perth WA 6000", note:"常設展覽完全免費開放。內部設計極具當代建築美學。"},
-    {name:"北橋 James Street 唐人街", dest:"James St, Northbridge WA 6003", note:"伯斯最著名的亞洲飲食、小吃、珍奶聚集的核心商圈。"}
-  ],
-  meals:[
-    {tag:"早餐", name:"Secret Garden Cafe (南伯斯)", note:"擁有高雅英式花園中庭的老牌家庭咖啡廳。人均約 AU$25。", dest:"Secret Garden Cafe, South Perth", tags:[["tag-menu","必點菜單","傳統大盤英式早餐 (Full Breakfast)"]]},
-    {tag:"午餐", name:"Hawker Hall (北橋星馬排檔)", note:"東南亞風味美食廣場，平價多選擇，約 AU$18。", dest:"Hawker Hall, Northbridge", tags:[["tag-eat","必吃美食","星馬黑醬乾撈麵 / 招牌咖哩叻沙"]]},
-    {tag:"晚餐", name:"Optus Stadium 河岸新興特區", note:"步行前往體育場河岸特區，觀賞高樓點燈夜景。人均約 AU$26。", dest:"Optus Stadium, Burswood", tags:[["tag-eat","必吃美食","濱水河炸雞拼盤配精釀啤酒"]]}
-  ],
-  prep:"今日為行程最後一站，非常適合順道補貨澳洲伴手禮。因隔日即需打包行李，建議本日順便前往超市核對各箱行李托運重量。"
-},
-{
-  no:9, date:"7月20日（一）", title:"曼杜拉運河小鎮 Mandurah ▎加開海豚生態日",
-  sub:"搭船看野生海豚與優美水岸生態", budget:"整天預估花費：約台幣 1,500 元",
-  weather:"🌤️ 天氣預報：10°C - 16°C ▎運河海風極寒、務必加強頭部防風",
-  story:"曼杜拉（Mandurah）是伯斯南邊著名的藍色水岸生態城鎮，以廣大的運河網路與野生巨型瓶鼻海豚聞名。此區運河與豪宅交織，是西澳知名的生態休閒勝地，大眾運輸亦能直達。",
-  transport:{text:"自住處搭車前往 Canning Bridge Station，搭乘火車 (Mandurah Line) 直達終點 Mandurah 站（約 40 分鐘）。出站後於火車站轉乘當地公車 <b>588 或 589 號</b> 10 分鐘即可直達 Foreshore 水岸核心區。", dest:"Mandurah Foreshore, Mandurah WA 6210", mode:"transit"},
-  spots:[
-    {name:"曼杜拉前海灘與運河步道 Mandurah Foreshore", dest:"Mandurah Foreshore, Mandurah WA 6210", note:"風景優美的公共親水沿岸，有極高機率看見野生海豚游至岸邊。"},
-    {name:"海豚生態巡航船 Mandurah Dolphin Cruise", dest:"Mandurah Dolphin Cruise, Mandurah", note:"搭乘約 1 小時的生態觀光船，近距離看野生海豚嬉戲與運河豪宅群。"}
-  ],
-  meals:[
-    {tag:"早餐", name:"Dome Cafe (Mandurah Foreshore 店)", note:"直面美麗運河大港的經典連鎖。人均約 AU$15。", dest:"Dome Cafe Mandurah Foreshore", tags:[]},
-    {tag:"午餐", name:"Mandurah 沿岸平價魚薯或美式輕食", note:"水岸碼頭兩側有多家平價戶外餐廳。人均約 AU$25。", dest:"Mandurah Foreshore", tags:[["tag-eat","必吃美食","現炸鱈魚薯條佐塔塔醬 / 炭烤培根牛肉堡"]]},
-    {tag:"晚餐", name:"The Rowing Pavilion (回程河畔餐)", note:"火車回程於 Canning Bridge 站下車直達。人均約 AU$30。", dest:"The Rowing Pavilion, Mount Pleasant", tags:[["tag-menu","必點菜單","慢燉小牛頰肉飯 / 窯烤松露野菇薄餅"]]}
-  ],
-  prep:"<b>【重要預約代號】</b>：海豚生態船非常熱門，建議提前於官網完成線上訂位，並在此處編輯更新預約代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。冬季甲板風大，必須攜帶厚外套、毛帽與保暖手套。"
 }
 ];
 
@@ -1018,148 +929,44 @@ const customsDialogues = [
     title: "情境一：入境檢查",
     subtitle: "Immigration Check",
     dialogues: [
-      {
-        speaker: "海關人員",
-        english: "Good morning/afternoon. May I see your passport and incoming passenger card, please?",
-        chinese: "早上/下午好。可以看一下您的護照和入境卡嗎？"
-      },
-      {
-        speaker: "您",
-        english: "Good morning/afternoon. Here you go.",
-        chinese: "早上/下午好。給您。(遞上護照和入境卡)"
-      },
-      {
-        speaker: "海關人員",
-        english: "What is the purpose of your visit to Australia?",
-        chinese: "您來澳洲的目的是什麼？"
-      },
-      {
-        speaker: "您",
-        english: "I am here for tourism/holiday.",
-        chinese: "我是來旅遊的。"
-      },
-      {
-        speaker: "海關人員",
-        english: "How long will you be staying in Perth?",
-        chinese: "您會在伯斯待多久？"
-      },
-      {
-        speaker: "您",
-        english: "I will be staying for 16 days.",
-        chinese: "我會待16天。"
-      },
-      {
-        speaker: "海關人員",
-        english: "Where will you be staying?",
-        chinese: "您會住在哪裡？"
-      },
-      {
-        speaker: "您",
-        english: "I will be staying at my mother's friend's house.",
-        chinese: "我會住在我媽媽的朋友家。"
-      },
-      {
-        speaker: "海關人員",
-        english: "Are you traveling alone?",
-        chinese: "您是一個人旅行嗎？"
-      },
-      {
-        speaker: "您",
-        english: "No, I am traveling with my mother's friend's nephew. He is staying with his aunt.",
-        chinese: "不，我帶著我媽媽朋友的姪子。他會住在他阿姨家。"
-      },
-      {
-        speaker: "海關人員",
-        english: "Did you transit through Singapore?",
-        chinese: "您有經過新加坡轉機嗎？"
-      },
-      {
-        speaker: "您",
-        english: "Yes, I had a transit in Singapore.",
-        chinese: "是的，我從新加坡轉機。"
-      }
+      { speaker: "海關人員", english: "Good morning/afternoon. May I see your passport and incoming passenger card, please?", chinese: "早上/下午好。可以看一下您的護照和入境卡嗎？" },
+      { speaker: "您", english: "Good morning/afternoon. Here you go.", chinese: "早上/下午好。給您。(遞上護照和入境卡)" },
+      { speaker: "海關人員", english: "What is the purpose of your visit to Australia?", chinese: "您來澳洲的目的是什麼？" },
+      { speaker: "您", english: "I am here for tourism/holiday.", chinese: "我是來旅遊的。" },
+      { speaker: "海關人員", english: "How long will you be staying in Perth?", chinese: "您會在伯斯待多久？" },
+      { speaker: "您", english: "I will be staying for 16 days.", chinese: "我會待16天。" },
+      { speaker: "海關人員", english: "Where will you be staying?", chinese: "您會住在哪裡？" },
+      { speaker: "您", english: "I will be staying at my mother's friend's house.", chinese: "我會住在我媽媽的朋友家。" },
+      { speaker: "海關人員", english: "Are you traveling alone?", chinese: "您是一個人旅行嗎？" },
+      { speaker: "您", english: "No, I am traveling with my mother's friend's nephew. He is staying with his aunt.", chinese: "不，我帶著我媽媽朋友的姪子。他會住在他阿姨家。" },
+      { speaker: "海關人員", english: "Did you transit through Singapore?", chinese: "您有經過新加坡轉機嗎？" },
+      { speaker: "您", english: "Yes, I had a transit in Singapore.", chinese: "是的，我從新加坡轉機。" }
     ]
   },
   {
     title: "情境二：行李與藥物申報",
     subtitle: "Baggage and Medication Declaration",
     dialogues: [
-      {
-        speaker: "海關人員",
-        english: "Do you have anything to declare? Such as food, plant products, or animal products?",
-        chinese: "您有什麼需要申報的嗎？例如食物、植物製品或動物製品？"
-      },
-      {
-        speaker: "您",
-        english: "Yes, I need to declare some personal medications.",
-        chinese: "是的，我需要申報一些個人常備藥物。"
-      },
-      {
-        speaker: "海關人員",
-        english: "Can you tell me what kind of medications they are and what they are for?",
-        chinese: "您能告訴我這些是什麼藥物，以及用途是什麼嗎？"
-      },
-      {
-        speaker: "您",
-        english: "They are my regular prescribed medications for common cold, stomach ache, and pain relief. I have an English prescription from my doctor.",
-        chinese: "這些是我的常備處方藥，用於感冒、胃痛和止痛。我帶有醫生開的英文處方箋。"
-      },
-      {
-        speaker: "海關人員",
-        english: "Please show me the prescription.",
-        chinese: "請出示處方箋。"
-      },
-      {
-        speaker: "您",
-        english: "Here is the prescription.",
-        chinese: "這是處方箋。(遞上英文處方箋)"
-      },
-      {
-        speaker: "海關人員",
-        english: "Do you have any other items to declare?",
-        chinese: "您還有其他需要申報的物品嗎？"
-      },
-      {
-        speaker: "您",
-        english: "No, nothing else.",
-        chinese: "沒有了，沒有其他需要申報的物品。"
-      }
+      { speaker: "海關人員", english: "Do you have anything to declare? Such as food, plant products, or animal products?", chinese: "您有什麼需要申報的嗎？例如食物、植物製品或動物製品？" },
+      { speaker: "您", english: "Yes, I need to declare some personal medications.", chinese: "是的，我需要申報一些個人常備藥物。" },
+      { speaker: "海關人員", english: "Can you tell me what kind of medications they are and what they are for?", chinese: "您能告訴我這些是什麼藥物，以及用途是什麼嗎？" },
+      { speaker: "您", english: "They are my regular prescribed medications for common cold, stomach ache, and pain relief. I have an English prescription from my doctor.", chinese: "這些是我的常備處方藥，用於感冒、胃痛和止痛。我帶有醫生開的英文處方箋。" },
+      { speaker: "海關人員", english: "Please show me the prescription.", chinese: "請出示處方箋。" },
+      { speaker: "您", english: "Here is the prescription.", chinese: "這是處方箋。(遞上英文處方箋)" },
+      { speaker: "海關人員", english: "Do you have any other items to declare?", chinese: "您還有其他需要申報的物品嗎？" },
+      { speaker: "您", english: "No, nothing else.", chinese: "沒有了，沒有其他需要申報的物品。" }
     ]
   },
   {
     title: "情境三：其他常用語",
     subtitle: "Other Useful Phrases",
     dialogues: [
-      {
-        speaker: "您",
-        english: "Could you please direct me to the baggage claim area?",
-        chinese: "請問行李領取區在哪裡？"
-      },
-      {
-        speaker: "海關人員",
-        english: "It's straight ahead, then turn left.",
-        chinese: "直走，然後左轉。"
-      },
-      {
-        speaker: "您",
-        english: "Where can I find a taxi/bus/train to the city?",
-        chinese: "請問哪裡可以搭計程車/公車/火車去市區？"
-      },
-      {
-        speaker: "海關人員",
-        english: "The taxi stand is outside, to your right. The bus/train station is on the ground floor.",
-        chinese: "計程車站在外面右邊。公車/火車站在一樓。"
-      },
-      {
-        speaker: "您",
-        english: "Thank you for your help.",
-        chinese: "謝謝您的協助。"
-      },
-      {
-        speaker: "海關人員",
-        english: "You're welcome. Have a nice trip!",
-        chinese: "不客氣。祝您旅途愉快！"
-      }
+      { speaker: "您", english: "Could you please direct me to the baggage claim area?", chinese: "請問行李領取區在哪裡？" },
+      { speaker: "海關人員", english: "It's straight ahead, then turn left.", chinese: "直走，然後左轉。" },
+      { speaker: "您", english: "Where can I find a taxi/bus/train to the city?", chinese: "請問哪裡可以搭計程車/公車/火車去市區？" },
+      { speaker: "海關人員", english: "The taxi stand is outside, to your right. The bus/train station is on the ground floor.", chinese: "計程車站在外面右邊。公車/火車站在一樓。" },
+      { speaker: "您", english: "Thank you for your help.", chinese: "謝謝您的協助。" },
+      { speaker: "海關人員", english: "You're welcome. Have a nice trip!", chinese: "不客氣。祝您旅途愉快！" }
     ]
   }
 ];
@@ -1172,10 +979,10 @@ function initCustoms() {
     const dialogueHtml = section.dialogues.map(d => {
       const isSpeaker = d.speaker === "您";
       return `
-        <div style="margin-bottom:14px; padding:12px; background:${isSpeaker ? 'var(--accent-soft)' : '#F0F0F0'}; border-radius:8px;">
-          <div style="font-weight:700; color:${isSpeaker ? 'var(--accent-deep)' : 'var(--indigo)'}; font-size:13px; margin-bottom:6px;">${d.speaker}</div>
-          <div style="font-weight:700; font-size:14.5px; color:var(--accent-deep); margin-bottom:4px;">${d.english}</div>
-          <div style="font-size:13.5px; color:var(--ink); margin-top:4px;">${d.chinese}</div>
+        <div class="dialogue-bubble ${isSpeaker ? 'you' : 'officer'}">
+          <div class="dialogue-speaker">${d.speaker}</div>
+          <div class="dialogue-english">${d.english}</div>
+          <div class="dialogue-chinese">${d.chinese}</div>
         </div>
       `;
     }).join("");

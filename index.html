@@ -1,3 +1,41 @@
+網頁清單按鈕無反應的程式碼除錯與修改 - Manus
+我想加入一頁過海關對談英文(中英對照)
+我的大致資訊：我從新加坡轉機，會待在伯斯16天，我是來旅遊的，我住我媽媽的朋友家，我帶的小朋友是我媽媽朋友的姪子(所以就是住他們的阿姨家)，我到時候也會申報我有攜帶常備藥然後會有英文處方箋
+Lite
+沒問題！這是一個非常具體且實用的需求。我會為您在網頁中新增一頁「過海關對談」，並將您提到的所有細節（新加坡轉機、16天旅程、住宿地點、小朋友身分、藥物申報）都編寫進中英對照的對話範本中。
+我現在就開始修改程式碼。
+
+
+Lite
+我已經為您的網頁手帖新增了「海關對談」分頁，並將您提供的具體旅行資訊完整融入對話範本中。
+🆕 新增功能亮點：
+專屬海關對話：新增了「海關」分頁，內容針對您的情況量身打造：
+旅行目的：旅遊 (Tourism)。
+停留時間：16 天。
+住宿安排：明確說明住在媽媽的朋友家。
+隨行人員：解釋帶著媽媽朋友的姪子，且他會住在阿姨（媽媽的朋友）家。
+藥物申報：包含申報常備藥物及出示英文處方箋的對話流程。
+中英對照格式：採用清晰的對話框設計，藍色為海關，紅色為您的回答，方便您在現場快速查看。
+UI 優化：底部的導覽列已自動新增「海關」按鈕，並保持原有的流暢切換效果。
+您現在可以下載更新後的 fixed_code.html，直接在手機或電腦瀏覽器中開啟使用。祝您與小朋友的西澳之旅平安順利！
+fixed_code.html
+程式碼 · 63.42 KB
+查看此任務中的所有檔案
+任務已完成
+這個結果怎麼樣？
+建議追問
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>伯斯旅行手帖 · Perth Travel Notebook</title>
+<meta name="theme-color" 
+
+
+Canva
+
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -7,7 +45,7 @@
 <meta name="theme-color" content="#FAF6F0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght=500;600;700&family=Noto+Sans+TC:wght=400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root {
@@ -31,7 +69,6 @@
   --radius-md:12px;
   --radius-sm:8px;
   --shadow:0 1px 2px rgba(43,38,34,.04), 0 6px 16px rgba(43,38,34,.06);
-  --tabbar-h:64px;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -52,16 +89,11 @@ button{font-family:inherit;}
   margin:0 auto;
   min-height:100vh;
   background:var(--bg);
-  display:flex;
-  flex-direction:column;
   position:relative;
-  overflow:hidden;
 }
 @media (min-width:560px){
   body{padding:24px 0;}
   .app-frame{
-    min-height:calc(100vh - 48px);
-    height:calc(100vh - 48px);
     border-radius:28px;
     box-shadow:0 1px 4px rgba(43,38,34,.08), 0 30px 60px -20px rgba(43,38,34,.35);
     border:1px solid rgba(255,255,255,.6);
@@ -70,9 +102,8 @@ button{font-family:inherit;}
 
 /* ---------- top bar ---------- */
 .topbar{
-  flex:0 0 auto;
   padding:max(14px, env(safe-area-inset-top)) 20px 12px;
-  background:linear-gradient(180deg, var(--bg) 70%, rgba(250,246,239,0));
+  background:var(--bg);
   position:sticky; top:0; z-index:20;
 }
 .topbar-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
@@ -83,9 +114,8 @@ button{font-family:inherit;}
 .hairline{height:1px;background:var(--line);margin-top:12px;}
 
 /* ---------- main scroll area ---------- */
-main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 20px 28px;
-  /* 底部留出空間給浮動拉手 */
-  padding-bottom: 80px;
+main{
+  padding:4px 20px 120px;
 }
 .page{display:none;animation:fade .25s ease;}
 .page.active{display:block;}
@@ -95,36 +125,27 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 
 .section-lead h2{font-size:19px;font-weight:700;}
 .section-lead p{font-size:14px;color:var(--ink-soft);margin-top:6px;}
 
-/* ============================================================
-   底部 tabbar — 滑入/滑出動畫
-   預設顯示，點擊 main 時隱藏，再點時出現
-============================================================ */
+/* ---------- bottom tab nav 固定置底架構 ---------- */
 nav.tabbar{
-  flex:0 0 auto;
+  position:fixed;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:540px;
   display:flex;
   background:var(--surface);
   border-top:1px solid var(--line);
-  padding:6px 2px max(6px, env(safe-area-inset-bottom)) 2px;
-  position:fixed;
-  bottom:0; left:50%; transform:translateX(-50%);
-  width:100%; max-width:540px;
-  z-index:30;
+  padding:8px 2px max(12px, env(safe-area-inset-bottom)) 2px;
+  z-index:50;
   overflow-x:auto;
-  /* 動畫設定 */
-  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1),
-              opacity 0.35s cubic-bezier(0.4,0,0.2,1);
-  will-change: transform, opacity;
-}
-nav.tabbar.hidden{
-  transform: translateX(-50%) translateY(100%);
-  opacity: 0;
-  pointer-events: none;
+  box-shadow: 0 -4px 16px rgba(43,38,34,.06);
 }
 nav.tabbar button{
   flex:1; min-width:55px;
   background:none;border:none;
   display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:6px 2px;
+  padding:4px 2px;
   color:var(--ink-faint);
   font-size:11px;
   cursor:pointer;
@@ -133,46 +154,6 @@ nav.tabbar button{
 nav.tabbar button svg{width:22px;height:22px;}
 nav.tabbar button.active{color:var(--accent-deep);font-weight:700;}
 nav.tabbar button.active svg{stroke:var(--accent-deep);}
-
-/* ============================================================
-   浮動選單呼叫拉手
-   tabbar 收起時浮現，讓使用者知道可以點擊叫出選單
-============================================================ */
-.nav-fab{
-  position:fixed;
-  bottom: max(16px, env(safe-area-inset-bottom));
-  left: 50%; transform: translateX(-50%);
-  width: 48px; height: 48px;
-  background: var(--accent);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px rgba(143,47,34,0.35);
-  z-index: 31;
-  cursor: pointer;
-  border: none;
-  /* 預設隱藏，tabbar 顯示時不需要 */
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-50%) scale(0.8);
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-.nav-fab.visible{
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) scale(1);
-}
-.nav-fab svg{
-  width: 22px; height: 22px;
-  stroke: #fff;
-}
-
-/* ============================================================
-   點擊回饋漣漪效果（輕量化）
-============================================================ */
-@keyframes ripple{
-  from{opacity:0.3;transform:translateX(-50%) scale(0);}
-  to{opacity:0;transform:translateX(-50%) scale(1);}
-}
 
 /* ---------- shared components ---------- */
 .card{
@@ -197,7 +178,8 @@ nav.tabbar button.active svg{stroke:var(--accent-deep);}
   display:inline-flex;align-items:center;gap:6px;
   font-size:13px;font-weight:700;color:var(--accent-deep);
   border:1px solid var(--accent-soft);background:var(--accent-soft);
-  padding:7px 14px;border-radius:999px;margin-top:8px;
+  padding:8px 16px;border-radius:999px;margin-top:8px;
+  min-height:36px;
 }
 .navbtn svg{width:14px;height:14px;}
 .navbtn.alt{color:var(--indigo);background:var(--indigo-soft);border-color:var(--indigo-soft);}
@@ -229,17 +211,17 @@ nav.tabbar button.active svg{stroke:var(--accent-deep);}
 .meal-note{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
 
 .done-toggle{display:flex;align-items:center;gap:7px;margin-top:14px;font-size:13px;color:var(--ink-soft);cursor:pointer;}
-.done-toggle input{width:17px;height:17px;accent-color:var(--accent);}
+.done-toggle input{width:20px;height:18px;accent-color:var(--accent);}
 
 /* packing list */
 .pack-cat{margin-bottom:18px;}
 .pack-cat h3{font-size:14.5px;color:var(--indigo);margin-bottom:8px;font-weight:700;}
-.pack-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);}
-.pack-item input[type=checkbox]{margin-top:4px;width:18px;height:18px;accent-color:var(--accent);flex:0 0 auto;}
+.pack-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
+.pack-item input[type=checkbox]{margin-top:2px;width:22px;height:22px;accent-color:var(--accent);flex:0 0 auto;}
 .pack-text{flex:1;font-size:14.5px;outline:none;border-radius:6px;padding:2px 4px;color:var(--ink);}
 .pack-text:focus{background:var(--accent-soft);}
 .pack-item.checked .pack-text{color:var(--ink-faint);text-decoration:line-through;}
-.add-item{font-size:13px;color:var(--accent-deep);font-weight:700;background:none;border:1px dashed var(--line-strong);width:100%;padding:8px;border-radius:var(--radius-sm);margin-top:6px;cursor:pointer;}
+.add-item{font-size:13px;color:var(--accent-deep);font-weight:700;background:none;border:1px dashed var(--line-strong);width:100%;padding:10px;border-radius:var(--radius-sm);margin-top:6px;cursor:pointer;}
 
 /* segmented control */
 .segment {display:flex;background:#F0EAE0;border-radius:999px;padding:3px;margin-bottom:16px;}
@@ -282,29 +264,8 @@ nav.tabbar button.active svg{stroke:var(--accent-deep);}
 .place-card h4{font-size:14.5px;font-weight:700;color:var(--ink);}
 .place-card p{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
 
-iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;}
+iframe.budget-frame{width:100%;height:68vh;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;}
 .openlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--indigo);margin-top:10px;}
-
-/* ============================================================
-   Toast 提示 (第一次使用引導)
-============================================================ */
-.toast{
-  position:fixed;
-  bottom: 80px; left:50%; transform:translateX(-50%);
-  background:rgba(43,38,34,0.85);
-  color:#fff;
-  font-size:13px;
-  padding:10px 20px;
-  border-radius:999px;
-  white-space:nowrap;
-  z-index:40;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity 0.4s ease;
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.toast.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -323,7 +284,6 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
 
   <main id="mainScroll">
 
-    <!-- ===================== PAGE 1：航班資訊 & 事前注意事項 ===================== -->
     <section class="page active" id="page-flight">
       <div class="section-lead">
         <h2>台北 ⇄ 伯斯 · 酷航 Scoot</h2>
@@ -343,7 +303,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
             <div class="tl-date">7月5日（日）</div>
             <div class="tl-time">04:15 抵達轉機</div>
             <div class="tl-place">SIN 新加坡樟宜機場 T1</div>
-            <div class="layover">轉機 <b>10時5分</b> · 行李直掛，免提取 → 詳見「新加坡轉機」分頁</div>
+            <div class="layover">轉機 <b>10時5分</b> · 行理直掛，免提取 → 詳見「新加坡轉機」分頁</div>
             <div class="tl-time">14:20 出發</div>
             <div class="tl-place">SIN 樟宜機場 T1</div>
             <div class="tl-flight">TR004 · 波音787-8 · 經濟艙H</div>
@@ -365,9 +325,10 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
             <div class="tl-flight">TR009 · 波音787-8 · 經濟艙H</div>
           </div>
           <div class="tl-item">
+            <div class="tl-date">7月20日（一）</div>
             <div class="tl-time">23:45 抵達轉機</div>
             <div class="tl-place">SIN 樟宜機場 T1</div>
-            <div class="layover">轉機 <b>1時15分</b>（隔日轉機）· 行李直掛 · 兩段都在 T1 航廈</div>
+            <div class="layover">轉機 <b>1時15分</b>（隔日轉機）· 行理直掛 · 兩段都在 T1 航廈</div>
             <div class="tl-date">7月21日（二）</div>
             <div class="tl-time">01:00 出發</div>
             <div class="tl-place">SIN 樟宜機場 T1</div>
@@ -398,7 +359,6 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
       </div>
     </section>
 
-    <!-- ===================== PAGE 2：建議攜帶物品 ===================== -->
     <section class="page" id="page-packing">
       <div class="section-lead">
         <h2>行前打包檢查清單</h2>
@@ -407,7 +367,6 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
       <div id="packingRoot"></div>
     </section>
 
-    <!-- ===================== PAGE 3：每日行程 ===================== -->
     <section class="page" id="page-itinerary">
       <div class="section-lead">
         <h2>9 天深度探索行程</h2>
@@ -416,7 +375,6 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
       <div id="itineraryRoot"></div>
     </section>
 
-    <!-- ===================== PAGE 4：日常探店清單 ===================== -->
     <section class="page" id="page-food">
       <div class="section-lead">
         <h2>口袋探店與小吃清單</h2>
@@ -430,25 +388,22 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
       <div class="subpage" id="food-city"></div>
     </section>
 
-    <!-- ===================== PAGE 5：旅遊常用口語 ===================== -->
     <section class="page" id="page-phrases">
       <div class="section-lead">
         <h2>旅行英文常用口語</h2>
-        <p>完整還原原手帖精選短句，依情境與脈絡細緻分類（不含飯店情境），便於即時查閱。</p>
+        <p>完整還原原手帖精選短句，依情境與脈絡細緻分類（不含飯店情境），隨點即看。</p>
       </div>
       <div id="phrasesRoot"></div>
     </section>
 
-    <!-- ===================== PAGE 6：新加坡轉機攻略 ===================== -->
     <section class="page" id="page-transit">
       <div class="section-lead">
         <h2>新加坡樟宜機場 10 小時轉機</h2>
-        <p>酷航去回程皆在 T1 航廈，不需跨航廈移動，動線極為流遷。</p>
+        <p>酷航去回程皆在 T1 航廈，不需跨航廈移動，動線極為流暢。</p>
       </div>
       <div id="transitRoot"></div>
     </section>
 
-    <!-- ===================== PAGE 7：記帳帳本內嵌 ===================== -->
     <section class="page" id="page-budget">
       <div class="section-lead">
         <h2>旅費雲端記帳本</h2>
@@ -463,9 +418,16 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
       </a>
     </section>
 
+    <section class="page" id="page-customs">
+      <div class="section-lead">
+        <h2>過海關對談英文</h2>
+        <p>包含入境檢查、行李申報等情境的中英對照對話範本。</p>
+      </div>
+      <div id="customsRoot"></div>
+    </section>
+
   </main>
 
-  <!-- 底部固定式導覽列 -->
   <nav class="tabbar" id="tabbar">
     <button data-page="page-flight" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 13.5 3 17l.5-2.5L12 10V6a2 2 0 1 1 4 0v4l8.5 4.5-.5 2.5-7.5-3-1 4 2 1.5-.5 1.5-3-1-3 1-.5-1.5 2-1.5-1-4Z"/></svg>
@@ -495,18 +457,11 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2"/><path stroke-linecap="round" d="M3 10h18M7 14h3"/></svg>
       記帳
     </button>
+    <button data-page="page-customs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 10v4M12 8h.01"/></svg>
+      海關
+    </button>
   </nav>
-
-  <!-- 浮動選單呼叫按鈕 (tabbar 收起時出現) -->
-  <button class="nav-fab" id="navFab" aria-label="開啟選單">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-    </svg>
-  </button>
-
-  <!-- Toast 引導提示 -->
-  <div class="toast" id="toast">點擊任意空白處可收起 / 叫回選單列</div>
-
 </div>
 
 <script>
@@ -514,7 +469,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
    基礎環境配置與資料庫常數
 ============================================================ */
 const HOME_ADDR = "23b Henning crescent Manning WA 6152";
-const STORE_KEY = "perth-trip-notebook-v3";
+const STORE_KEY = "perth-trip-notebook-v8";
 
 function loadStore(){
   try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
@@ -524,99 +479,20 @@ function saveStore(s){
 }
 let STORE = loadStore();
 
-function mapsLink(dest){
-  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(dest);
+function mapsLink(dest, mode){
+  mode = mode || "transit";
+  return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(HOME_ADDR) +
+         "&destination=" + encodeURIComponent(dest) + "&travelmode=" + mode;
 }
 function navIcon(){
   return '<svg class="mr-1 inline-block" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 11l18-7-7 18-2-8-9-3Z"/></svg>';
 }
-function navBtn(label, dest, _mode, alt){
-  return '<a class="navbtn'+(alt?' alt':'')+'" target="_blank" rel="noopener" href="'+mapsLink(dest)+'">'+navIcon()+label+'</a>';
+function navBtn(label, dest, mode, alt){
+  return '<a class="navbtn'+(alt?' alt':'')+'" target="_blank" rel="noopener" href="'+mapsLink(dest, mode)+'">'+navIcon()+label+'</a>';
 }
 function tagHtml(cls, label, text){
   return '<span class="tag '+cls+'">'+label+(text? '：'+text : '')+'</span>';
 }
-
-/* ============================================================
-   ★★★ 導覽列 點擊顯示/隱藏 核心邏輯 ★★★
-============================================================ */
-(function(){
-  const tabbar = document.getElementById("tabbar");
-  const fab    = document.getElementById("navFab");
-  const main   = document.getElementById("mainScroll");
-  const toast  = document.getElementById("toast");
-  let navVisible = true;
-  let toastShown = false;
-
-  /* 顯示引導 Toast（首次進入時，延遲 1.2 秒出現，3 秒後自動消失） */
-  const shownBefore = localStorage.getItem("nav-hint-shown");
-  if(!shownBefore){
-    setTimeout(()=>{
-      toast.classList.add("show");
-      setTimeout(()=>toast.classList.remove("show"), 3000);
-      localStorage.setItem("nav-hint-shown","1");
-    }, 1200);
-  }
-
-  function showNav(){
-    navVisible = true;
-    tabbar.classList.remove("hidden");
-    fab.classList.remove("visible");
-  }
-  function hideNav(){
-    navVisible = false;
-    tabbar.classList.add("hidden");
-    fab.classList.add("visible");
-  }
-  function toggleNav(){
-    if(navVisible) hideNav(); else showNav();
-  }
-
-  /*
-    觸發規則：
-    - 點擊 main 內容區空白處（非互動元素）→ 切換
-    - 點擊浮動 FAB → 強制顯示
-    - 點擊 tabbar 內的按鈕 → 不觸發（讓原本切換頁面的邏輯正常運作）
-    - 捲動時自動偵測方向：往下捲收起、往上捲出現（類似原生瀏覽器行為）
-  */
-
-  /* 主要切換：點擊 main 區域 */
-  main.addEventListener("click", function(e){
-    /* 如果點擊的是互動元素，讓它正常執行，不觸發選單切換 */
-    const interactive = e.target.closest(
-      "a, button, input, select, textarea, label, [contenteditable]"
-    );
-    if(interactive) return;
-    toggleNav();
-  });
-
-  /* FAB 按鈕：強制顯示導覽列 */
-  fab.addEventListener("click", function(e){
-    e.stopPropagation();
-    showNav();
-  });
-
-  /* 捲動方向偵測（選用，搭配點擊更順暢） */
-  let lastScrollY = 0;
-  let scrollTimer = null;
-  main.addEventListener("scroll", function(){
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(()=>{
-      const currentY = main.scrollTop;
-      const delta = currentY - lastScrollY;
-      /* 往下捲超過 40px 才收起，避免誤觸 */
-      if(delta > 40 && navVisible){
-        hideNav();
-      }
-      /* 往上捲超過 20px 就顯示 */
-      if(delta < -20 && !navVisible){
-        showNav();
-      }
-      lastScrollY = currentY;
-    }, 80);
-  }, { passive: true });
-
-})();
 
 /* ============================================================
    分頁切換邏輯
@@ -628,27 +504,52 @@ const TITLES = {
   "page-food":"口袋探店清單",
   "page-phrases":"英文常用口語",
   "page-transit":"新加坡轉機攻略",
-  "page-budget":"旅費雲端記帳"
+  "page-budget":"旅費雲端記帳",
+  "page-customs":"過海關對談英文"
 };
-document.getElementById("tabbar").addEventListener("click", function(e){
-  const btn = e.target.closest("button");
-  if(!btn) return;
-  document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(btn.dataset.page).classList.add("active");
-  document.getElementById("pageTitle").textContent = TITLES[btn.dataset.page];
-  document.getElementById("mainScroll").scrollTop = 0;
-});
+
+function initTabNavigation() {
+  const tabbar = document.getElementById("tabbar");
+  if (!tabbar) return;
+
+  tabbar.addEventListener("click", function(e){
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    
+    const pageId = btn.dataset.page;
+    if (!pageId) return;
+
+    // 更新按鈕狀態
+    document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // 更新頁面顯示
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+      targetPage.classList.add("active");
+    }
+
+    // 更新標題
+    const titleEl = document.getElementById("pageTitle");
+    if (titleEl && TITLES[pageId]) {
+      titleEl.textContent = TITLES[pageId];
+    }
+    
+    window.scrollTo({ top: 0 });
+  });
+}
 
 /* ============================================================
-   旅程倒數進度條
+   旅程進度計算
 ============================================================ */
-(function(){
-  const start = new Date(2026,6,5);
-  const end = new Date(2026,6,21);
+function initTripStatus() {
+  const start = new Date(2026,6,5); // 7月5日
+  const end = new Date(2026,6,21);  // 7月21日
   const now = new Date();
   const el = document.getElementById("tripStatus");
+  if (!el) return;
+
   const oneDay = 86400000;
   if(now < start){
     const d = Math.ceil((start-now)/oneDay);
@@ -659,10 +560,10 @@ document.getElementById("tabbar").addEventListener("click", function(e){
   }else{
     el.innerHTML = "旅程已結束<br>歡迎回顧 ✓";
   }
-})();
+}
 
 /* ============================================================
-   PAGE 1 — 出發前準備 (記憶功能)
+   PAGE 1 — 出發前準備
 ============================================================ */
 const predep = [
   "確認護照效期（離境時滿 6 個月以上）",
@@ -671,11 +572,13 @@ const predep = [
   "購買並投保旅平險（時間建議報 7/4 傍晚至 7/21 午夜）",
   "起飛前 48 小時內完成酷航網頁線上報到",
   "漫遊上網設定完成，或提前安裝好當地 eSIM 數據卡",
-  "準備聯邦吉鶴卡實體卡（年享 2 次免費 LoungeKey 機場貴賓室）",
   "確認行動電源、鋰電池皆放置於隨身行李，不可托運"
 ];
-(function(){
+
+function initPredep() {
   const root = document.getElementById("predepList");
+  if (!root) return;
+
   predep.forEach((text,i)=>{
     const id = "predep-"+i;
     const checked = STORE[id] ? "checked" : "";
@@ -692,10 +595,10 @@ const predep = [
       saveStore(STORE);
     }
   });
-})();
+}
 
 /* ============================================================
-   PAGE 2 — 可編輯打包清單 (記憶功能)
+   PAGE 2 — 打包清單
 ============================================================ */
 const packData = [
   { cat:"重要證件與金錢", items:[
@@ -722,8 +625,11 @@ const packData = [
     "折疊雨傘 (防範冬日陣雨)"
   ]}
 ];
-(function(){
+
+function initPacking() {
   const root = document.getElementById("packingRoot");
+  if (!root) return;
+
   packData.forEach((group, gi)=>{
     const catWrap = document.createElement("div");
     catWrap.className = "card pack-cat";
@@ -776,10 +682,10 @@ const packData = [
       div.querySelector(".pack-text").focus();
     }
   });
-})();
+}
 
 /* ============================================================
-   PAGE 3 — 每日行程安排數據庫
+   PAGE 3 — 行程數據
 ============================================================ */
 const days = [
 {
@@ -812,7 +718,7 @@ const days = [
   meals:[
     {tag:"早餐", name:"Moore & Moore Cafe", note:"由歷史藝術村建物改建的質感咖啡廳。人均約 AU$20。", dest:"Moore & Moore Cafe, Fremantle", tags:[["tag-menu","必點菜單","酪梨酸種麵包佐水波蛋"]]},
     {tag:"午餐", name:"Fremantle Markets 內部小吃", note:"各國排檔美味聚集。人均約 AU$15-25。", dest:"Fremantle Markets, Fremantle", tags:[["tag-eat","必吃美食","傳統蜂蜜蛋糕 / 澳式手工肉派"]]},
-    {tag:"晚餐", name:"Cicerello's (漁港店)", note:"港邊百年字號傳統海鮮餐廳. 人均約 AU$25-35。", dest:"Cicerello's Fremantle", tags:[["tag-eat","必吃美食","招牌經典炸魚薯條拼盤 (Fish & Chips)"]]}
+    {tag:"晚餐", name:"Cicerello's (漁港店)", note:"港邊百年字號傳統海鮮餐廳。人均約 AU$25-35。", dest:"Cicerello's Fremantle", tags:[["tag-eat","必吃美食","招牌經典炸魚薯條拼盤 (Fish & Chips)"]]}
   ],
   prep:"<b>【重要預約】</b>：若計畫參觀著名的弗里曼特爾監獄世界遺產導覽，建議提早於官網線上預約。注意市集僅在週五、六、日開放。"
 },
@@ -875,11 +781,11 @@ const days = [
   transport:{text:"搭乘 <b>Fremantle 線火車</b> 直達 Cottesloe 站，步行 10 分鐘到海灘。結束後兩個海灘間距離 8 公里，<b>搭乘 Uber 接駁僅需台幣約 220 元</b>，極度推薦此走法！", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", mode:"transit"},
   spots:[
     {name:"科特斯洛海灘 Cottesloe Beach", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", note:"伯斯最負盛名的白色海灘，日落景緻冠絕西澳。"},
-    {name:"斯卡伯勒夕陽大道 Scarborough Beach", dest:"Scarborough Beach, Scarborough WA 6019", note:"近期重新開發的海濱觀景步道，看印度洋夕陽毫無遮蔽。"}
+    {name:"斯卡伯勒夕陽大道 Scarborough Sunset Strip", dest:"Scarborough Beach, WA 6019", note:"伯斯最熱鬧的海濱特區，夕陽時分氣氛極佳。"}
   ],
   meals:[
     {tag:"早餐", name:"Laika Coffee (南區住所附近)", note:"出發前先在 Manning 附近的頂級咖啡店用餐。人均約 AU$20。", dest:"Laika Coffee, Lathlain", tags:[["tag-menu","必點菜單","經典英式大拼盤餐佐拿鐵咖啡"]]},
-    {tag:"午餐", name:"Amberjacks (科特斯洛店)", note:"海灘第一排高評價炸魚薯條。人均約 AU$20。", dest:"Amberjacks Cottesloe", tags:[["tag-eat","必吃美食","外帶鱈魚薯條至沙灘長椅野餐"]]},
+    {tag:"午餐", name:"Amberjacks (科特斯洛店)", note:"海灘第一排高評價炸魚薯條. 人均約 AU$20。", dest:"Amberjacks Cottesloe", tags:[["tag-eat","必吃美食","外帶鱈魚薯條至沙灘長椅野餐"]]},
     {tag:"晚餐", name:"El Grotto (斯卡伯勒)", note:"海濱道地墨式酒吧餐館。人均約 AU$28。", dest:"El Grotto, Scarborough", tags:[["tag-eat","必吃美食","鮮美手撕豬肉塔可餅 (Tacos)"]]}
   ],
   prep:"7 月冬季的落日時間準時在下午 17:30 左右，海邊風勢非常強大，建議在 16:30 前完成卡位，並穿戴保暖毛帽與防風防寒大衣。"
@@ -896,7 +802,7 @@ const days = [
   ],
   meals:[
     {tag:"早餐", name:"Community Coffee Co. (市區店)", note:"伯斯職人界精品烘豆名店。人均約 AU$15。", dest:"Community Coffee Co., Perth", tags:[["tag-menu","必點菜單","單品手沖豆咖啡 / 脆皮牛角可頌"]]},
-    {tag:"午餐", name:"Perth Zoo Café", note:"動物園內置的便利景觀輕食餐廳。人均約 AU$20。", dest:"Perth Zoo", tags:[]},
+    {tag:"午餐", name:"Perth Zoo Café", note:"動物園內置的便利景觀輕食餐廳。人均約 AU$20。", dest:"Perth Zoo"},
     {tag:"晚餐", name:"Coode Street 河岸餐酒一條街", note:"南伯斯最知名的景觀餐飲聚落。人均約 AU$26。", dest:"Coode St, South Perth", tags:[["tag-eat","必吃美食","窯烤雞肉總匯披薩配天鵝河夜景"]]}
   ],
   prep:"<b>【重要預約代號】</b>：動物園門票可線上預約電子票。記下代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。園區占地大，建議安排至少 3 小時。"
@@ -939,48 +845,54 @@ const days = [
 
 function dayCardHTML(d){
   const meals = d.meals.map(m=>{
-    const tags = m.tags.map(t=>tagHtml(t[0],t[1],t[2])).join("");
-    return '<div class="meal">'+
-      '<span class="meal-tag">'+m.tag+'</span>'+
-      '<div class="meal-name">'+m.name+'</div>'+
-      '<div class="meal-note">'+m.note+'</div>'+
-      (tags? '<div class="my-1.5 flex flex-wrap">'+tags+'</div>' : '')+
-      navBtn("導航前往店家", m.dest, "transit")+
-      '</div>';
+    const tags = m.tags ? m.tags.map(t=>tagHtml(t[0],t[1],t[2])).join("") : "";
+    return `
+      <div class="meal">
+        <span class="meal-tag">${m.tag}</span>
+        <div class="meal-name">${m.name}</div>
+        <div class="meal-note">${m.note}</div>
+        ${tags ? `<div class="my-1.5 flex flex-wrap">${tags}</div>` : ''}
+        ${navBtn("導航前往店家", m.dest, "transit")}
+      </div>
+    `;
   }).join("");
 
   const spots = d.spots.map(s=>{
-    return '<div style="margin-bottom:12px;">'+
-      '<div class="meal-name font-bold text-gray-800">'+s.name+'</div>'+
-      '<div class="meal-note text-sm text-gray-600 mt-0.5">'+s.note+'</div>'+
-      navBtn("導航前往景點", s.dest, "transit")+
-      '</div>';
+    return `
+      <div style="margin-bottom:12px;">
+        <div class="meal-name font-bold text-gray-800">${s.name}</div>
+        <div class="meal-note text-sm text-gray-600 mt-0.5">${s.note}</div>
+        ${navBtn("導航前往景點", s.dest, "transit")}
+      </div>
+    `;
   }).join("");
 
   const doneId = "day-done-"+d.no;
   const doneChecked = STORE[doneId] ? "checked" : "";
 
-  return ''+
-  '<article class="card">'+
-    '<div class="day-head">'+
-      '<span class="seal">'+d.no+'</span>'+
-      '<div class="titles">'+
-        '<h3>'+d.date+' '+d.title+'</h3>'+
-        '<div class="day-sub font-medium text-amber-800 mt-0.5">'+d.weather+'</div>'+
-      '</div>'+
-      '<span class="budget-chip">'+d.budget+'</span>'+
-    '</div>'+
-    '<div class="story">'+d.story+'</div>'+
-    '<div class="block"><h4>🚌 大眾運輸與Uber動線</h4><p>'+d.transport.text+'</p>'+navBtn("開啟大眾運輸導航", d.transport.dest, "transit")+'</div>'+
-    '<div class="block"><h4>🏛️ 景點導覽</h4>'+spots+'</div>'+
-    '<div class="block"><h4>🍴 附近三餐推薦規劃 (均值台幣500內)</h4>'+meals+'</div>'+
-    '<div class="block"><h4>💡 導遊行前攻略提示</h4><p class="text-sm text-gray-700">'+d.prep+'</p></div>'+
-    '<label class="done-toggle"><input type="checkbox" data-done-id="'+doneId+'" '+doneChecked+'>標記這天行程已完成</label>'+
-  '</article>';
+  return `
+    <article class="card">
+      <div class="day-head">
+        <span class="seal">${d.no}</span>
+        <div class="titles">
+          <h3>${d.date} ${d.title}</h3>
+          <div class="day-sub font-medium text-amber-800 mt-0.5">${d.weather}</div>
+        </div>
+        <span class="budget-chip">${d.budget}</span>
+      </div>
+      <div class="story">${d.story}</div>
+      <div class="block"><h4>🚌 大眾運輸與Uber動線</h4><p>${d.transport.text}</p>${navBtn("開啟大眾運輸導航", d.transport.dest, "transit")}</div>
+      <div class="block"><h4>🏛️ 景點導覽</h4>${spots}</div>
+      <div class="block"><h4>🍴 附近三餐推薦規劃 (均值台幣500內)</h4>${meals}</div>
+      <div class="block"><h4>💡 導遊行前攻略提示</h4><p class="text-sm text-gray-700">${d.prep}</p></div>
+      <label class="done-toggle"><input type="checkbox" data-done-id="${doneId}" ${doneChecked}>標記這天行程已完成</label>
+    </article>
+  `;
 }
 
-(function(){
+function initItinerary() {
   const root = document.getElementById("itineraryRoot");
+  if (!root) return;
   root.innerHTML = days.map(dayCardHTML).join("");
   root.addEventListener("change", function(e){
     if(e.target.matches("[data-done-id]")){
@@ -988,10 +900,10 @@ function dayCardHTML(d){
       saveStore(STORE);
     }
   });
-})();
+}
 
 /* ============================================================
-   PAGE 4 — 在地日常想探店的清單
+   PAGE 4 — 探店清單
 ============================================================ */
 const foodNear = [
   {name:"Kitchen Inn (Waterford Plaza)", dest:"Kitchen Inn, Waterford Plaza", note:"離 Manning 住處極近！主打極正宗星馬砂拉越乾盤麵 (Kolo Mee) 與叻沙，上菜極快，每道約 $15 AUD。"},
@@ -1003,30 +915,47 @@ const foodNear = [
 const foodCity = [
   {name:"Howard's Groove (市中心 CBD)", dest:"Howard's Groove, Perth", note:"知名精品咖啡。推薦特調「燕麥聖安娜冷萃」，層次分明，熱壓吐司表現極佳。"},
   {name:"Community Coffee Co. (Subiaco 質感區)", dest:"Community Coffee Co., Subiaco", note:"極簡現代工業風，自烘豆 Loot Coffee 風味醇厚穩定，在當地咖啡客圈中評價極高。"},
-  {name:"Hifumiya Udon Noodle House (市中心)", dest:"Hifumiya Udon, Perth", note:"市區性價比最高的隱密食堂。現下手打烏龍麵清甜Q彈，每碗只要 $12-18 AUD。"},
+  {name:"Hifumiya Udon Noodle House (市中心)", dest:"Hifumiya Udon, Perth", note:"市區性價比最高的隱密食堂。現下手打烏龍麵清甜Q彈，每碗官方售價約 $12-18 AUD。"},
   {name:"The Re Store (北橋 Northbridge)", dest:"The Re Store, Northbridge", note:"百年老字號傳統義式熟食雜貨店。招牌義式煙燻肉捲三明治 (Continental Roll) 用料爆滿澎湃。"},
   {name:"Taka's Kitchen (北橋區老字號)", dest:"Taka's Kitchen, Northbridge", note:"陪伴無數留學生的超平價日式食堂。大份炸雞排蓋飯、咖哩便當只要約 $15 AUD，便宜大碗。"}
 ];
 function placeListHTML(list){
-  return '<div class="card">'+list.map(p=>{
-    return '<div class="place-card"><span class="place-mark"></span>'+
-      '<div class="flex-1"><h4>'+p.name+'</h4><p>'+p.note+'</p>'+navBtn("開啟地圖導航", p.dest, "transit")+'</div></div>';
-  }).join("")+'</div>';
+  return '<div class="card">' + list.map(p=>{
+    return `
+      <div class="place-card">
+        <span class="place-mark"></span>
+        <div class="flex-1">
+          <h4>${p.name}</h4>
+          <p>${p.note}</p>
+          ${navBtn("開啟地圖導航", p.dest, "transit")}
+        </div>
+      </div>
+    `;
+  }).join("") + '</div>';
 }
-document.getElementById("food-near").innerHTML = placeListHTML(foodNear);
-document.getElementById("food-city").innerHTML = placeListHTML(foodCity);
 
-document.getElementById("foodSegment").addEventListener("click", function(e){
-  const btn = e.target.closest("button");
-  if(!btn) return;
-  this.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  document.querySelectorAll("#page-food .subpage").forEach(s=>s.classList.remove("active"));
-  document.getElementById(btn.dataset.sub).classList.add("active");
-});
+function initFood() {
+  const nearRoot = document.getElementById("food-near");
+  const cityRoot = document.getElementById("food-city");
+  if (nearRoot) nearRoot.innerHTML = placeListHTML(foodNear);
+  if (cityRoot) cityRoot.innerHTML = placeListHTML(foodCity);
+  
+  const foodSegment = document.getElementById("foodSegment");
+  if (foodSegment) {
+    foodSegment.addEventListener("click", function(e){
+      const btn = e.target.closest("button");
+      if(!btn) return;
+      this.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll("#page-food .subpage").forEach(s=>s.classList.remove("active"));
+      const subPage = document.getElementById(btn.dataset.sub);
+      if (subPage) subPage.classList.add("active");
+    });
+  }
+}
 
 /* ============================================================
-   PAGE 5 — 英文常用語
+   PAGE 5 — 英文口語
 ============================================================ */
 const phraseGroups = [
   { cat:"交通搭乘", items:[
@@ -1062,40 +991,262 @@ const phraseGroups = [
   { cat:"日常社交與禮貌", items:[
     ["Good morning! Lovely weather today, isn't it?","早安！今天天氣真不錯，對吧？","輕鬆的開場閒聊"],
     ["Would you mind taking a photo for us, please?","可以麻煩幫我們拍張照嗎？","請路人協助拍照"],
-    ["I'm so sorry, I didn't mean to bump into you.","真的很抱歉，我不是故意撞到你的。","道歉用語"],
+    ["I'm so sorry, I didn't mean to bump into you.","真的很抱歉，我不是故意撞到目的。","道歉用語"],
     ["Thank you for your patience, I really appreciate it.","謝謝你的耐心，真的很感謝。","感謝對方耐心對待"]
   ]}
 ];
-(function(){
+
+function initPhrases() {
   const root = document.getElementById("phrasesRoot");
+  if (!root) return;
+
   root.innerHTML = phraseGroups.map(g=>{
     const items = g.items.map(p=>{
-      return '<div class="phrase"><div class="en">'+p[0]+'</div><div class="zh">'+p[1]+'</div><div class="ctx">'+p[2]+'</div></div>';
+      return `
+        <div class="phrase">
+          <div class="en">${p[0]}</div>
+          <div class="zh">${p[1]}</div>
+          <div class="ctx">${p[2]}</div>
+        </div>
+      `;
     }).join("");
-    return '<div class="card"><h3>'+g.cat+'</h3><div class="divider" style="margin:8px 0;"></div>'+items+'</div>';
+    return `
+      <div class="card">
+        <h3>${g.cat}</h3>
+        <div class="divider" style="margin:8px 0;"></div>
+        ${items}
+      </div>
+    `;
   }).join("");
-})();
+}
 
 /* ============================================================
-   PAGE 6 — 新加坡轉機攻略
+   PAGE 6 — 轉機攻略
 ============================================================ */
-(function(){
+function initTransit() {
   const root = document.getElementById("transitRoot");
-  root.innerHTML =
-  '<div class="card">'+
-    '<h3>去程轉機 ▎10 小時 5 分鐘（04:15 – 14:20）</h3>'+
-    '<div class="notice">行李直掛伯斯，轉機免提行李。但需預先填好 SG Arrival Card 電子入境卡才可查驗通關出境。</div>'+
-    '<p style="font-size:14px; color:var(--ink);">酷航全部起降皆在 <b>T1</b>。清晨 04:15 降落後店家未開，建議先至 T1 3樓過境區的 <b>Snooze Lounge 免費躺椅休息區</b> 補眠與洗漱。早上 06:00 後刷護照通關出海關，即可直接步行 5 分鐘抵達正對面的 <b>Jewel 星耀樟宜</b> 園區。</p>'+
-    '<div class="story"><b>巨型雨林瀑布（雨漩渦）早上 10:00 準時開始放水</b>。建議準時在瀑布前卡位，此時遊客最稀少，最容易捕捉震撼的無人背景照片。</div>'+
-    '<div class="block"><h4>餐飲與探店推薦</h4><p style="font-size:13.5px;">早餐推薦前往 Jewel B2 享用 <b>亞坤咖椰吐司</b> 或 <b>松發肉骨茶</b>。午餐推薦洽詢服務台前往專屬對外開放的 <b>T1 員工餐廳 (Orchid Food Court)</b>，體驗最道地、平價物美的新加坡炒米粉與南洋庶民小吃。</p>'+navBtn("導航前往星耀樟宜 Jewel", "Jewel Changi Airport, Singapore", "walking")+'</div>'+
-    '<div class="notice" style="margin-top:14px;">重要安全提示：樟宜機場的隨身行李安檢一律設置在「各登機門正前方」。請務必於下午 13:00 前返回 T1 航廈並抵達指定登機門前排隊接受安檢，避免延誤 14:20 飛往伯斯的航班。</div>'+
-  '</div>'+
-  '<div class="card">'+
-    '<h3>回程轉機 ▎1 小時 15 分鐘（23:45 – 01:00，隔日短轉機）</h3>'+
-    '<div class="notice">轉機時程極短且正值深夜，請直接留在 T1 航廈管制過境區內，切勿輕易通關出境。</div>'+
-    '<p style="font-size:14px; color:var(--ink);">兩段航班同樣皆在 <b>T1</b> 航廈，不需跨航廈移動。下飛機後請緊隨「Transfer／轉機」綠色看板指標前進，重新過安檢後直奔登機門。深夜時段多數免稅店均歇業，可在 24 小時營業的超商快速調整休息，做好下一段夜間長途飛行的補水準備。</p>'+
-  '</div>';
-})();
+  if (!root) return;
+
+  root.innerHTML = `
+    <div class="card">
+      <h3>去程轉機 ▎10 小時 5 分鐘（04:15 – 14:20）</h3>
+      <div class="notice">行李直掛伯斯，轉機免提行李。但需預先填好 SG Arrival Card 電子入境卡才可查驗通關出境。</div>
+      <p style="font-size:14px; color:var(--ink);">酷航全部起降皆在 <b>T1</b>。清晨 04:15 降落後店家未開，建議先至 T1 3樓過境區的 <b>Snooze Lounge 免費躺椅休息區</b> 補眠與洗漱。早上 06:00 後刷護照通關出海關，即可直接步行 5 分鐘抵達正對面的 <b>Jewel 星耀樟宜</b> 園區。</p>
+      <div class="story"><b>巨型雨林瀑布（雨漩渦）早上 10:00 準時開始放水</b>。建議準時在瀑布前卡位，此時遊客最稀少，最容易捕捉震撼的無人背景照片。</div>
+      <div class="block">
+        <h4>餐飲與探店推薦</h4>
+        <p style="font-size:13.5px;">早餐推薦前往 Jewel B2 享用 <b>亞坤咖椰吐司</b> 或 <b>松發肉骨茶</b>。午餐推薦洽詢服務台前往專屬對外開放的 <b>T1 員工餐廳 (Orchid Food Court)</b>，體驗最道地、平價物美的新加坡炒米粉與南洋庶民小吃。</p>
+        ${navBtn("導航前往星耀樟宜 Jewel", "Jewel Changi Airport, Singapore", "walking")}
+      </div>
+      <div class="notice" style="margin-top:14px;">重要安全提示：樟宜機場的隨身行李安檢一律設置在「各登機門正前方」。請務必於下午 13:00 前返回 T1 航廈並抵達指定登機門前排隊接受安檢，避免延誤 14:20 飛往伯斯的航班。</div>
+    </div>
+    <div class="card">
+      <h3>回程轉機 ▎1 小時 15 分鐘（23:45 – 01:00，隔日短轉機）</h3>
+      <div class="notice">轉機時程極短且正值深夜，請直接留在 T1 航廈管制過境區內，切勿輕易通關出境。</div>
+      <p style="font-size:14px; color:var(--ink);">兩段航班同樣皆在 <b>T1</b> 航廈，不需跨航廈移動。下飛機後請緊隨「Transfer／轉機」綠色看板指標前進，重新過安檢後直奔登機門。深夜時段多數免稅店均歇業，可在 24 小時營業的超商快速調整休息，做好下一段夜間長途飛行的補水準備。</p>
+    </div>
+  `;
+}
+
+/* ============================================================
+   PAGE 7 — 過海關對談英文
+============================================================ */
+const customsDialogues = [
+  {
+    title: "情境一：入境檢查",
+    subtitle: "Immigration Check",
+    dialogues: [
+      {
+        speaker: "海關人員",
+        english: "Good morning/afternoon. May I see your passport and incoming passenger card, please?",
+        chinese: "早上/下午好。可以看一下您的護照和入境卡嗎？"
+      },
+      {
+        speaker: "您",
+        english: "Good morning/afternoon. Here you go.",
+        chinese: "早上/下午好。給您。(遞上護照和入境卡)"
+      },
+      {
+        speaker: "海關人員",
+        english: "What is the purpose of your visit to Australia?",
+        chinese: "您來澳洲的目的是什麼？"
+      },
+      {
+        speaker: "您",
+        english: "I am here for tourism/holiday.",
+        chinese: "我是來旅遊的。"
+      },
+      {
+        speaker: "海關人員",
+        english: "How long will you be staying in Perth?",
+        chinese: "您會在伯斯待多久？"
+      },
+      {
+        speaker: "您",
+        english: "I will be staying for 16 days.",
+        chinese: "我會待16天。"
+      },
+      {
+        speaker: "海關人員",
+        english: "Where will you be staying?",
+        chinese: "您會住在哪裡？"
+      },
+      {
+        speaker: "您",
+        english: "I will be staying at my mother's friend's house.",
+        chinese: "我會住在我媽媽的朋友家。"
+      },
+      {
+        speaker: "海關人員",
+        english: "Are you traveling alone?",
+        chinese: "您是一個人旅行嗎？"
+      },
+      {
+        speaker: "您",
+        english: "No, I am traveling with my mother's friend's nephew. He is staying with his aunt.",
+        chinese: "不，我帶著我媽媽朋友的姪子。他會住在他阿姨家。"
+      },
+      {
+        speaker: "海關人員",
+        english: "Did you transit through Singapore?",
+        chinese: "您有經過新加坡轉機嗎？"
+      },
+      {
+        speaker: "您",
+        english: "Yes, I had a transit in Singapore.",
+        chinese: "是的，我從新加坡轉機。"
+      }
+    ]
+  },
+  {
+    title: "情境二：行李與藥物申報",
+    subtitle: "Baggage and Medication Declaration",
+    dialogues: [
+      {
+        speaker: "海關人員",
+        english: "Do you have anything to declare? Such as food, plant products, or animal products?",
+        chinese: "您有什麼需要申報的嗎？例如食物、植物製品或動物製品？"
+      },
+      {
+        speaker: "您",
+        english: "Yes, I need to declare some personal medications.",
+        chinese: "是的，我需要申報一些個人常備藥物。"
+      },
+      {
+        speaker: "海關人員",
+        english: "Can you tell me what kind of medications they are and what they are for?",
+        chinese: "您能告訴我這些是什麼藥物，以及用途是什麼嗎？"
+      },
+      {
+        speaker: "您",
+        english: "They are my regular prescribed medications for common cold, stomach ache, and pain relief. I have an English prescription from my doctor.",
+        chinese: "這些是我的常備處方藥，用於感冒、胃痛和止痛。我帶有醫生開的英文處方箋。"
+      },
+      {
+        speaker: "海關人員",
+        english: "Please show me the prescription.",
+        chinese: "請出示處方箋。"
+      },
+      {
+        speaker: "您",
+        english: "Here is the prescription.",
+        chinese: "這是處方箋。(遞上英文處方箋)"
+      },
+      {
+        speaker: "海關人員",
+        english: "Do you have any other items to declare?",
+        chinese: "您還有其他需要申報的物品嗎？"
+      },
+      {
+        speaker: "您",
+        english: "No, nothing else.",
+        chinese: "沒有了，沒有其他需要申報的物品。"
+      }
+    ]
+  },
+  {
+    title: "情境三：其他常用語",
+    subtitle: "Other Useful Phrases",
+    dialogues: [
+      {
+        speaker: "您",
+        english: "Could you please direct me to the baggage claim area?",
+        chinese: "請問行李領取區在哪裡？"
+      },
+      {
+        speaker: "海關人員",
+        english: "It's straight ahead, then turn left.",
+        chinese: "直走，然後左轉。"
+      },
+      {
+        speaker: "您",
+        english: "Where can I find a taxi/bus/train to the city?",
+        chinese: "請問哪裡可以搭計程車/公車/火車去市區？"
+      },
+      {
+        speaker: "海關人員",
+        english: "The taxi stand is outside, to your right. The bus/train station is on the ground floor.",
+        chinese: "計程車站在外面右邊。公車/火車站在一樓。"
+      },
+      {
+        speaker: "您",
+        english: "Thank you for your help.",
+        chinese: "謝謝您的協助。"
+      },
+      {
+        speaker: "海關人員",
+        english: "You're welcome. Have a nice trip!",
+        chinese: "不客氣。祝您旅途愉快！"
+      }
+    ]
+  }
+];
+
+function initCustoms() {
+  const root = document.getElementById("customsRoot");
+  if (!root) return;
+
+  root.innerHTML = customsDialogues.map(section => {
+    const dialogueHtml = section.dialogues.map(d => {
+      const isSpeaker = d.speaker === "您";
+      return `
+        <div style="margin-bottom:14px; padding:12px; background:${isSpeaker ? 'var(--accent-soft)' : '#F0F0F0'}; border-radius:8px;">
+          <div style="font-weight:700; color:${isSpeaker ? 'var(--accent-deep)' : 'var(--indigo)'}; font-size:13px; margin-bottom:6px;">${d.speaker}</div>
+          <div style="font-weight:700; font-size:14.5px; color:var(--accent-deep); margin-bottom:4px;">${d.english}</div>
+          <div style="font-size:13.5px; color:var(--ink); margin-top:4px;">${d.chinese}</div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="card">
+        <h3>${section.title}</h3>
+        <div class="muted" style="margin-bottom:12px; font-style:italic;">${section.subtitle}</div>
+        <div class="divider" style="margin:8px 0;"></div>
+        ${dialogueHtml}
+      </div>
+    `;
+  }).join("");
+}
+
+/* ============================================================
+   全局初始化
+============================================================ */
+document.addEventListener("DOMContentLoaded", function() {
+  try {
+    initTabNavigation();
+    initTripStatus();
+    initPredep();
+    initPacking();
+    initItinerary();
+    initFood();
+    initPhrases();
+    initTransit();
+    initCustoms();
+  } catch (err) {
+    console.error("Initialization error:", err);
+  }
+});
 </script>
 </body>
 </html>

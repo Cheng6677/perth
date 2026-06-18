@@ -47,12 +47,11 @@ p{margin:0 0 0;}
 a{color:inherit;text-decoration:none;}
 button{font-family:inherit;}
 
-/* 手機端強制 100vh 視窗鎖定，防止版面被內容拉長 */
+/* 手機端強制 100vh 視窗彈性佈局，確保選單列永遠鎖定在視域最下方 */
 .app-frame{
   max-width:540px;
   margin:0 auto;
   height:100vh;
-  background:var(--bg);
   display:flex;
   flex-direction:column;
   position:relative;
@@ -84,7 +83,12 @@ button{font-family:inherit;}
 .hairline{height:1px;background:var(--line);margin-top:12px;}
 
 /* ---------- main scroll area ---------- */
-main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 20px 28px;}
+main{
+  flex:1 1 auto;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:4px 20px 40px;
+}
 .page{display:none;animation:fade .25s ease;}
 .page.active{display:block;}
 @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
@@ -93,20 +97,17 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 
 .section-lead h2{font-size:19px;font-weight:700;}
 .section-lead p{font-size:14px;color:var(--ink-soft);margin-top:6px;}
 
-/* ---------- bottom tab nav (支援點擊動畫與彈出收合) ---------- */
+/* ---------- bottom tab nav (常駐型原生置底，排除動態干擾) ---------- */
 nav.tabbar{
   flex:0 0 auto;
   display:flex;
   background:var(--surface);
   border-top:1px solid var(--line);
   padding:6px 2px max(6px, env(safe-area-inset-bottom)) 2px;
-  position:absolute; bottom:0; left:0; right:0; z-index:40;
+  position:relative; 
+  z-index:40;
   overflow-x:auto;
-  transition:transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-/* 選單隱藏狀態（向下退縮 100%） */
-nav.tabbar.nav-hidden {
-  transform:translateY(100%);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
 }
 nav.tabbar button{
   flex:1; min-width:55px;
@@ -177,7 +178,7 @@ nav.tabbar button.active svg{stroke:var(--accent-deep);}
 .meal-note{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
 
 .done-toggle{display:flex;align-items:center;gap:7px;margin-top:14px;font-size:13px;color:var(--ink-soft);cursor:pointer;}
-.done-toggle input{width:17px;height:17px;accent-color:var(--accent);}
+.done-toggle input{width:18px;height:18px;accent-color:var(--accent);}
 
 /* packing list */
 .pack-cat{margin-bottom:18px;}
@@ -230,7 +231,7 @@ nav.tabbar button.active svg{stroke:var(--accent-deep);}
 .place-card h4{font-size:14.5px;font-weight:700;color:var(--ink);}
 .place-card p{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
 
-iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;}
+iframe.budget-frame{width:100%;height:68vh;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;}
 .openlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--indigo);margin-top:10px;}
 </style>
 </head>
@@ -248,7 +249,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
     <div class="hairline"></div>
   </header>
 
-  <!-- 主捲動閱讀區（點擊此區任一處即可自由切換選單列的彈出與收合） -->
+  <!-- 主捲動閱讀區 -->
   <main id="mainScroll">
 
     <!-- ===================== PAGE 1：航班資訊 & 事前注意事項 ===================== -->
@@ -393,7 +394,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
 
   </main>
 
-  <!-- 底部原生導覽列（支援智慧點擊防誤觸、動畫收合） -->
+  <!-- 底部固定式導覽列（常駐顯示，徹底排除點擊阻斷問題） -->
   <nav class="tabbar" id="tabbar">
     <button data-page="page-flight" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 13.5 3 17l.5-2.5L12 10V6a2 2 0 1 1 4 0v4l8.5 4.5-.5 2.5-7.5-3-1 4 2 1.5-.5 1.5-3-1-3 1-.5-1.5 2-1.5-1-4Z"/></svg>
@@ -431,7 +432,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
    基礎環境配置與資料庫常數
 ============================================================ */
 const HOME_ADDR = "23b Henning crescent Manning WA 6152";
-const STORE_KEY = "perth-trip-notebook-v4";
+const STORE_KEY = "perth-trip-notebook-v5";
 
 function loadStore(){
   try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
@@ -457,7 +458,7 @@ function tagHtml(cls, label, text){
 }
 
 /* ============================================================
-   分頁切換邏輯
+   分頁切換邏輯（修正滾動重置 Bug）
 ============================================================ */
 const TITLES = {
   "page-flight":"航班資訊",
@@ -476,25 +477,9 @@ document.getElementById("tabbar").addEventListener("click", function(e){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(btn.dataset.page).classList.add("active");
   document.getElementById("pageTitle").textContent = TITLES[btn.dataset.page];
+  
+  // 修正：必須針對 main 滾動容器本身進行重置，手機端換頁才會回到頂部
   document.getElementById("mainScroll").scrollTop = 0;
-});
-
-/* ============================================================
-   ★ 核心優化：點擊螢幕任意閱讀區切換選單顯示/隱藏
-============================================================ */
-document.getElementById("mainScroll").addEventListener("click", function(e) {
-  // 智慧型避讓：點擊輸入框、按鈕、地圖連結、可編輯文字、或 Iframe 時，不隱藏選單
-  if (
-    e.target.closest('input') || 
-    e.target.closest('button') || 
-    e.target.closest('a') || 
-    e.target.closest('.segment') ||
-    e.target.closest('[contenteditable="true"]')
-  ) {
-    return;
-  }
-  const tabbar = document.getElementById("tabbar");
-  tabbar.classList.toggle("nav-hidden");
 });
 
 /* ============================================================
@@ -653,7 +638,7 @@ const days = [
     {tag:"午餐", name:"Soi29 (市區美食街)", note:"道地高評價泰式料理。人均約 AU$15。", dest:"Soi29, Perth CBD", tags:[["tag-eat","必吃美食","慢燉牛肉泰北金麵 (Khao Soi)"]]},
     {tag:"晚餐", name:"Hifumiya Udon (市區)", note:"超人氣平價日式手打烏龍麵。人均約 AU$18。", dest:"Hifumiya Udon, Perth CBD", tags:[["tag-eat","必吃美食","牛肉冷烏龍麵 / 現炸蔬菜天婦羅"]]}
   ],
-  prep:"國王公園園區遼闊，建議著舒適步鞋。傍晚碼頭河風強勁，請備妥外套。"
+  prep:"國王公園園區遼闊，幕著舒適步鞋。傍晚碼頭河風強勁，請備妥外套。"
 },
 {
   no:2, date:"7月8日（三）", title:"弗里曼特爾港口小鎮 Fremantle",
@@ -676,7 +661,7 @@ const days = [
   no:3, date:"7月10日（五）", title:"卡弗沙姆野生動物園 ＆ 天鵝谷酒莊",
   sub:"親近袋鼠與品味鄉村小鎮", budget:"整天預估花費：約台幣 2,200 元",
   weather:"🌤️ 天氣預報：12°C - 18°C ▎晴時多雲、極為舒適",
-  story:"天鵝谷是西澳最古老的葡萄酒鄉，沿途充滿精緻酒莊與手工食品坊。毗鄰的卡弗沙姆野生動物園則能讓你一睹無尾熊、袋鼠與塔斯馬尼亞惡魔等澳洲特有生物的風采。",
+  story:"天鵝谷是西澳最古老的葡萄酒鄉，沿途充滿精緻酒莊與手工食品坊。毗鄰的卡弗沙姆野生動物園則能讓你一睹無尾熊、袋鼠與塔斯馬尼亞惡魔等澳洲特有動物的風采。",
   transport:{text:"搭公車到伯斯車站，轉乘 <b>Ellenbrook 線火車</b> 直達 Whiteman Park 站（26分鐘）。下車後<b>轉搭 Uber 僅需台幣約 200 元</b>，完全符合預算標準！", dest:"Caversham Wildlife Park, Whiteman WA 6068", mode:"transit"},
   spots:[
     {name:"卡弗沙姆野生動物園 Caversham Wildlife Park", dest:"Caversham Wildlife Park, Whiteman WA 6068", note:"可免費與無尾熊拍照、親手餵食袋鼠。"},

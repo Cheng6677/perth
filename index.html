@@ -524,16 +524,14 @@ function saveStore(s){
 }
 let STORE = loadStore();
 
-function mapsLink(dest, mode){
-  mode = mode || "transit";
-  return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(HOME_ADDR) +
-         "&destination=" + encodeURIComponent(dest) + "&travelmode=" + mode;
+function mapsLink(dest){
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(dest);
 }
 function navIcon(){
   return '<svg class="mr-1 inline-block" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 11l18-7-7 18-2-8-9-3Z"/></svg>';
 }
-function navBtn(label, dest, mode, alt){
-  return '<a class="navbtn'+(alt?' alt':'')+'" target="_blank" rel="noopener" href="'+mapsLink(dest, mode)+'">'+navIcon()+label+'</a>';
+function navBtn(label, dest, _mode, alt){
+  return '<a class="navbtn'+(alt?' alt':'')+'" target="_blank" rel="noopener" href="'+mapsLink(dest)+'">'+navIcon()+label+'</a>';
 }
 function tagHtml(cls, label, text){
   return '<span class="tag '+cls+'">'+label+(text? '：'+text : '')+'</span>';

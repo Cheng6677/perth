@@ -47,10 +47,11 @@ p{margin:0 0 0;}
 a{color:inherit;text-decoration:none;}
 button{font-family:inherit;}
 
+/* 手機端強制 100vh 視窗鎖定，防止版面被內容拉長 */
 .app-frame{
   max-width:540px;
   margin:0 auto;
-  min-height:100vh;
+  height:100vh;
   background:var(--bg);
   display:flex;
   flex-direction:column;
@@ -92,15 +93,20 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 
 .section-lead h2{font-size:19px;font-weight:700;}
 .section-lead p{font-size:14px;color:var(--ink-soft);margin-top:6px;}
 
-/* ---------- bottom tab nav ---------- */
+/* ---------- bottom tab nav (支援點擊動畫與彈出收合) ---------- */
 nav.tabbar{
   flex:0 0 auto;
   display:flex;
   background:var(--surface);
   border-top:1px solid var(--line);
   padding:6px 2px max(6px, env(safe-area-inset-bottom)) 2px;
-  position:sticky; bottom:0; z-index:20;
+  position:absolute; bottom:0; left:0; right:0; z-index:40;
   overflow-x:auto;
+  transition:transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* 選單隱藏狀態（向下退縮 100%） */
+nav.tabbar.nav-hidden {
+  transform:translateY(100%);
 }
 nav.tabbar button{
   flex:1; min-width:55px;
@@ -242,6 +248,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
     <div class="hairline"></div>
   </header>
 
+  <!-- 主捲動閱讀區（點擊此區任一處即可自由切換選單列的彈出與收合） -->
   <main id="mainScroll">
 
     <!-- ===================== PAGE 1：航班資訊 & 事前注意事項 ===================== -->
@@ -355,7 +362,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
     <section class="page" id="page-phrases">
       <div class="section-lead">
         <h2>旅行英文常用口語</h2>
-        <p>完整還原原手帖精選短句，依情境與脈絡細緻分類（不含飯店情境），便於即時查閱。</p>
+        <p>完整還原原手帖精選短句，依情境與脈絡細緻分類（不含飯店情境），隨點即看[cite: 2]。</p>
       </div>
       <div id="phrasesRoot"></div>
     </section>
@@ -364,7 +371,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
     <section class="page" id="page-transit">
       <div class="section-lead">
         <h2>新加坡樟宜機場 10 小時轉機</h2>
-        <p>酷航去回程皆在 T1 航廈，不需跨航廈移動，動線極為流遷。</p>
+        <p>酷航去回程皆在 T1 航廈，不需跨航廈移動，動線極為流暢。</p>
       </div>
       <div id="transitRoot"></div>
     </section>
@@ -386,7 +393,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
 
   </main>
 
-  <!-- 底部固定式導覽列 -->
+  <!-- 底部原生導覽列（支援智慧點擊防誤觸、動畫收合） -->
   <nav class="tabbar" id="tabbar">
     <button data-page="page-flight" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 13.5 3 17l.5-2.5L12 10V6a2 2 0 1 1 4 0v4l8.5 4.5-.5 2.5-7.5-3-1 4 2 1.5-.5 1.5-3-1-3 1-.5-1.5 2-1.5-1-4Z"/></svg>
@@ -424,7 +431,7 @@ iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-r
    基礎環境配置與資料庫常數
 ============================================================ */
 const HOME_ADDR = "23b Henning crescent Manning WA 6152";
-const STORE_KEY = "perth-trip-notebook-v3";
+const STORE_KEY = "perth-trip-notebook-v4";
 
 function loadStore(){
   try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
@@ -473,7 +480,25 @@ document.getElementById("tabbar").addEventListener("click", function(e){
 });
 
 /* ============================================================
-   旅程倒數進度條
+   ★ 核心優化：點擊螢幕任意閱讀區切換選單顯示/隱藏
+============================================================ */
+document.getElementById("mainScroll").addEventListener("click", function(e) {
+  // 智慧型避讓：點擊輸入框、按鈕、地圖連結、可編輯文字、或 Iframe 時，不隱藏選單
+  if (
+    e.target.closest('input') || 
+    e.target.closest('button') || 
+    e.target.closest('a') || 
+    e.target.closest('.segment') ||
+    e.target.closest('[contenteditable="true"]')
+  ) {
+    return;
+  }
+  const tabbar = document.getElementById("tabbar");
+  tabbar.classList.toggle("nav-hidden");
+});
+
+/* ============================================================
+   旅程進度計算
 ============================================================ */
 (function(){
   const start = new Date(2026,6,5); // 7月5日
@@ -610,7 +635,7 @@ const packData = [
 })();
 
 /* ============================================================
-   PAGE 3 — 每日行程安排數據庫 (延伸至 9 天完整版)
+   PAGE 3 — 每日行程安排數據庫 (9天深度版)
 ============================================================ */
 const days = [
 {
@@ -643,7 +668,7 @@ const days = [
   meals:[
     {tag:"早餐", name:"Moore & Moore Cafe", note:"由歷史藝術村建物改建的質感咖啡廳。人均約 AU$20。", dest:"Moore & Moore Cafe, Fremantle", tags:[["tag-menu","必點菜單","酪梨酸種麵包佐水波蛋"]]},
     {tag:"午餐", name:"Fremantle Markets 內部小吃", note:"各國排檔美味聚集。人均約 AU$15-25。", dest:"Fremantle Markets, Fremantle", tags:[["tag-eat","必吃美食","傳統蜂蜜蛋糕 / 澳式手工肉派"]]},
-    {tag:"晚餐", name:"Cicerello's (漁港店)", note:"港邊百年字號傳統海鮮餐廳. 人均約 AU$25-35。", dest:"Cicerello's Fremantle", tags:[["tag-eat","必吃美食","招牌經典炸魚薯條拼盤 (Fish & Chips)"]]}
+    {tag:"晚餐", name:"Cicerello's (漁港店)", note:"港邊百年字號傳統海鮮餐廳。人均約 AU$25-35。", dest:"Cicerello's Fremantle", tags:[["tag-eat","必吃美食","招牌經典炸魚薯條拼盤 (Fish & Chips)"]]}
   ],
   prep:"<b>【重要預約】</b>：若計畫參觀著名的弗里曼特爾監獄世界遺產導覽，建議提早於官網線上預約。注意市集僅在週五、六、日開放。"
 },
@@ -668,7 +693,7 @@ const days = [
   no:4, date:"7月12日（日）", title:"羅特尼斯島 Rottnest Island 一日遊",
   sub:"造訪短尾矮袋鼠的純淨無車島", budget:"整天預估花費：約台幣 3,300 元",
   weather:"🌤️ 天氣預報：12°C - 18°C ▎印度洋海風強勁、體感偏涼",
-  story:"羅特尼斯島是西澳最神盛的度假海島。全島禁止私家汽車通行，環境極其純淨，這裏是世界上唯一能看見野生微笑袋鼠 Quokka 的原產地，生態極其珍貴。",
+  story:"羅特尼斯島是西澳最神聖的度假海島。全島禁止私家汽車通行，環境極其純淨，這裏是世界上唯一能看見野生微笑袋鼠 Quokka 的原產地，生態極其珍貴。",
   transport:{text:"搭乘公車前往 Fremantle 的 <b>B Shed 渡輪碼頭</b>，再搭乘已預約的高速渡輪直達海島（船程約 30 分鐘）。島上建議租借腳踏車移動。", dest:"Victoria Quay, Fremantle WA 6160", mode:"transit"},
   spots:[
     {name:"湯姆森灣 Thomson Bay 核心商圈", dest:"Thomson Bay, Rottnest Island", note:"尋找微笑短尾矮袋鼠 Quokka 的最佳出沒點。"},
@@ -706,7 +731,7 @@ const days = [
   transport:{text:"搭乘 <b>Fremantle 線火車</b> 直達 Cottesloe 站，步行 10 分鐘到海灘。結束後兩個海灘間距離 8 公里，<b>搭乘 Uber 接駁僅需台幣約 220 元</b>，極度推薦此走法！", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", mode:"transit"},
   spots:[
     {name:"科特斯洛海灘 Cottesloe Beach", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", note:"伯斯最負盛名的白色海灘，日落景緻冠絕西澳。"},
-    {name:"斯卡伯勒夕陽大道 Scarborough Beach", dest:"Scarborough Beach, Scarborough WA 6019", note:"近期重新開發的海濱觀景步道，看印度洋夕陽毫無遮蔽。"}
+    {name:"斯卡伯勒夕陽大道 Scarborough Beach", dest:"Scarborough Beach, Scarborough WA 6019", note:"近期全新翻修的海濱觀景步道，看印度洋夕陽毫無遮蔽。"}
   ],
   meals:[
     {tag:"早餐", name:"Laika Coffee (南區住所附近)", note:"出發前先在 Manning 附近的頂級咖啡店用餐。人均約 AU$20。", dest:"Laika Coffee, Lathlain", tags:[["tag-menu","必點菜單","經典英式大拼盤餐佐拿鐵咖啡"]]},
@@ -753,18 +778,18 @@ const days = [
   no:9, date:"7月20日（一）", title:"曼杜拉運河小鎮 Mandurah ▎加開海豚生態日",
   sub:"搭船看野生海豚與優美水岸生態", budget:"整天預估花費：約台幣 1,500 元",
   weather:"🌤️ 天氣預報：10°C - 16°C ▎運河海風極寒、務必加強頭部防風",
-  story:"曼杜拉（Mandurah）是伯斯南邊著名的藍色水岸生態城鎮，以廣大的運河網路與野生巨型瓶鼻海豚聞名。此區運河與豪宅交織，是西澳知名的生態休閒勝地，大眾運輸亦能直達。",
-  transport:{text:"自住處搭車前往 Canning Bridge Station，搭乘火車 (Mandurah Line) 直達終點 Mandurah 站（約 40 分鐘）。出站後於火車站轉乘當地公車 <b>588 或 589 號</b> 10 分鐘即可直達 Foreshore 水岸核心區。", dest:"Mandurah Foreshore, Mandurah WA 6210", mode:"transit"},
+  story:"曼杜拉（Mandurah）是伯斯南邊著名的藍色水岸生態城鎮，以廣大的運河網路與野生巨型瓶鼻海豚聞名。此區運河與豪宅交織，是西澳知名的生態休閒勝地，大眾運輸亦能直達[cite: 1]。",
+  transport:{text:"自住處搭車前往 Canning Bridge Station，搭乘火車 (Mandurah Line) 直達終點 Mandurah 站（約 40 分鐘）[cite: 1]。出站後於火車站轉乘當地公車 <b>588 或 589 號</b> 10 分鐘即可直達 Foreshore 水岸核心區[cite: 1]。", dest:"Mandurah Foreshore, Mandurah WA 6210", mode:"transit"},
   spots:[
-    {name:"曼杜拉前海灘與運河步道 Mandurah Foreshore", dest:"Mandurah Foreshore, Mandurah WA 6210", note:"風景優美的公共親水沿岸，有極高機率看見野生海豚游至岸邊。"},
-    {name:"海豚生態巡航船 Mandurah Dolphin Cruise", dest:"Mandurah Dolphin Cruise, Mandurah", note:"搭乘約 1 小時的生態觀光船，近距離看野生海豚嬉戲與運河豪宅群。"}
+    {name:"曼杜拉前海灘與運河步道 Mandurah Foreshore", dest:"Mandurah Foreshore, Mandurah WA 6210", note:"風景優美的公共親水沿岸，有極高機率看見野生海豚游至岸邊[cite: 1]。"},
+    {name:"海豚生態巡航船 Mandurah Dolphin Cruise", dest:"Mandurah Dolphin Cruise, Mandurah", note:"搭乘約 1 小時的生態觀光船，近距離看野生海豚嬉戲與運河豪宅群[cite: 1]。"}
   ],
   meals:[
-    {tag:"早餐", name:"Dome Cafe (Mandurah Foreshore 店)", note:"直面美麗運河大港的經典連鎖。人均約 AU$15。", dest:"Dome Cafe Mandurah Foreshore", tags:[]},
-    {tag:"午餐", name:"Mandurah 沿岸平價魚薯或美式輕食", note:"水岸碼頭兩側有多家平價戶外餐廳。人均約 AU$25。", dest:"Mandurah Foreshore", tags:[["tag-eat","必吃美食","現炸鱈魚薯條佐塔塔醬 / 炭烤培根牛肉堡"]]},
-    {tag:"晚餐", name:"The Rowing Pavilion (回程河畔餐)", note:"火車回程於 Canning Bridge 站下車直達。人均約 AU$30。", dest:"The Rowing Pavilion, Mount Pleasant", tags:[["tag-menu","必點菜單","慢燉小牛頰肉飯 / 窯烤松露野菇薄餅"]]}
+    {tag:"早餐", name:"Dome Cafe (Mandurah Foreshore 店)", note:"直面美麗運河大港的經典連鎖[cite: 1]。人均約 AU$15[cite: 1]。", dest:"Dome Cafe Mandurah Foreshore", tags:[]},
+    {tag:"午餐", name:"Mandurah 沿岸平價魚薯或美式輕食", note:"水岸碼頭兩側有多家平價戶外餐廳。人均約 AU$25[cite: 1]。", dest:"Mandurah Foreshore", tags:[["tag-eat","必吃美食","現炸鱈魚薯條佐塔塔醬 / 炭烤培根牛肉堡"]]},
+    {tag:"晚餐", name:"The Rowing Pavilion (回程河畔餐)", note:"火車回程於 Canning Bridge 站下車直達[cite: 1]。人均約 AU$30[cite: 1]。", dest:"The Rowing Pavilion, Mount Pleasant", tags:[["tag-menu","必點菜單","慢燉小牛頰肉飯 / 窯烤松露野菇薄餅"]]}
   ],
-  prep:"<b>【重要預約代號】</b>：海豚生態船非常熱門，建議提前於官網完成線上訂位，並在此處編輯更新預約代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。冬季甲板風大，必須攜帶厚外套、毛帽與保暖手套。"
+  prep:"<b>【重要預約代號】</b>：海豚生態船非常熱門，建議提前於官網完成線上訂位[cite: 1]，並在此處編輯更新預約代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。冬季甲板風大，必須攜帶厚外套、毛帽與保暖手套[cite: 1]。"
 }
 ];
 
@@ -861,40 +886,40 @@ document.getElementById("foodSegment").addEventListener("click", function(e){
 ============================================================ */
 const phraseGroups = [
   { cat:"交通搭乘", items:[
-    ["Excuse me, does this bus go to Elizabeth Quay?","不好意思，這班公車會到伊麗莎白港嗎？","上車前向司機確認方向"],
-    ["Could you let me know when we reach my stop, please?","可以麻煩到站時提醒我一下嗎？","適合不熟路線時請司機協助"],
-    ["Sorry, is this seat taken?","不好意思，這個座位有人坐嗎？","公車或火車上詢問空位"],
-    ["Thank you so much, have a great day!","非常感謝，祝你今天順利！","下車時向司機道謝"]
+    ["Excuse me, does this bus go to Elizabeth Quay?","不好意思，這班公車會到伊麗莎白港嗎？","上車前向司機確認方向"][cite: 2],
+    ["Could you let me know when we reach my stop, please?","可以麻煩到站時提醒我一下嗎？","適合不熟路線時請司機協助"][cite: 2],
+    ["Sorry, is this seat taken?","不好意思，這個座位有人坐嗎？","公車或火車上詢問空位"][cite: 2],
+    ["Thank you so much, have a great day!","非常感謝，祝你今天順利！","下車時向司機道謝"][cite: 2]
   ]},
   { cat:"點餐用餐", items:[
-    ["Hi, could I get a recommendation for something local?","你好，可以推薦一個比較有當地特色的餐點嗎？","請店員推薦招牌菜"],
-    ["Could you make it less spicy, please?","可以麻煩做不辣一點嗎？","調整辣度的禮貌說法"],
-    ["Is this dish vegetarian / gluten-free?","這道菜是素食／不含麩質嗎？","詢問飲食限制"],
-    ["Could I get the bill, please? Thank you!","可以麻煩結帳嗎？謝謝！","用餐結束禮貌結帳"],
-    ["Could I have this to take away, please?","可以幫我打包外帶嗎？","外帶用語"]
+    ["Hi, could I get a recommendation for something local?","你好，可以推薦一個比較有當地特色的餐點嗎？","請店員推薦招牌菜"][cite: 2],
+    ["Could you make it less spicy, please?","可以麻煩做不辣一點嗎？","調整辣度的禮貌說法"][cite: 2],
+    ["Is this dish vegetarian / gluten-free?","這道菜是素食／不含麩質嗎？","詢問飲食限制"][cite: 2],
+    ["Could I get the bill, please? Thank you!","可以麻煩結帳嗎？謝謝！","用餐結束禮貌結帳"][cite: 2],
+    ["Could I have this to take away, please?","可以幫我打包外帶嗎？","外帶用語"][cite: 2]
   ]},
   { cat:"購物消費", items:[
-    ["Excuse me, how much is this?","不好意思，這個多少錢？","詢問價格"],
-    ["Could I try this on, please?","可以試穿這件嗎？","試穿衣物用語"],
-    ["Could I get a receipt, please?","可以給我收據嗎？","報帳或退稅用"],
-    ["Is there a discount if I buy more than one?","如果買多件會有折扣嗎？","詢問優惠"]
+    ["Excuse me, how much is this?","不好意思，這個多少錢？","詢問價格"][cite: 2],
+    ["Could I try this on, please?","可以試穿這件嗎？","試穿衣物用語"][cite: 2],
+    ["Could I get a receipt, please?","可以給我收據嗎？","報帳或退稅用"][cite: 2],
+    ["Is there a discount if I buy more than one?","如果買多件會有折扣嗎？","詢問優惠"][cite: 2]
   ]},
   { cat:"問路與位置", items:[
-    ["Excuse me, could you tell me how to get to the train station?","不好意思，可以告訴我怎麼去火車站嗎？","主動詢問路人"],
-    ["Is it within walking distance from here?","這裡走過去會很遠嗎？","確認步行可行性"],
-    ["Thank you, I really appreciate your help.","謝謝你，真的很感謝你的幫忙。","道謝用語，誠懇有禮"]
+    ["Excuse me, could you tell me how to get to the train station?","不好意思，可以告訴我怎麼去火車站嗎？","主動詢問路人"][cite: 2],
+    ["Is it within walking distance from here?","這裡走過去會很遠嗎？","確認步行可行性"][cite: 2],
+    ["Thank you, I really appreciate your help.","謝謝你，真的很感謝你的幫忙。","道謝用語，誠懇有禮"][cite: 2]
   ]},
   { cat:"求助與緊急狀況", items:[
-    ["Excuse me, could you help me for a moment?","不好意思，可以請你幫修一下嗎？","開場請求協助"],
-    ["I think I've lost my phone, could you help me find it?","我的手機好像不見了，可以幫我找找嗎？","物品遺失時使用"],
-    ["Is there a pharmacy nearby?","附近有藥局嗎？","尋找藥局"],
-    ["Could you call for help, please? It's an emergency.","可以麻煩幫忙叫人協助嗎？這是緊急狀況。","緊急狀況求助"]
+    ["Excuse me, could you help me for a moment?","不好意思，可以請你幫修一下嗎？","開場請求協助"][cite: 2],
+    ["I think I've lost my phone, could you help me find it?","我的手機好像不見了，可以幫我找找嗎？","物品遺失時使用"][cite: 2],
+    ["Is there a pharmacy nearby?","附近有藥局嗎？","尋找藥局"][cite: 2],
+    ["Could you call for help, please? It's an emergency.","可以麻煩幫忙叫人協助嗎？這是緊急狀況。","緊急狀況求助"][cite: 2]
   ]},
   { cat:"日常社交與禮貌", items:[
-    ["Good morning! Lovely weather today, isn't it?","早安！今天天氣真不錯，對吧？","輕鬆的開場閒聊"],
-    ["Would you mind taking a photo for us, please?","可以麻煩幫我們拍張照嗎？","請路人協助拍照"],
-    ["I'm so sorry, I didn't mean to bump into you.","真的很抱歉，我不是故意撞到你的。","道歉用語"],
-    ["Thank you for your patience, I really appreciate it.","謝謝你的耐心，真的很感謝。","感謝對方耐心對待"]
+    ["Good morning! Lovely weather today, isn't it?","早安！今天天氣真不錯，對吧？","輕鬆的開場閒聊"][cite: 2],
+    ["Would you mind taking a photo for us, please?","可以麻煩幫我們拍張照嗎？","請路人協助拍照"][cite: 2],
+    ["I'm so sorry, I didn't mean to bump into you.","真的很抱歉，我不是故意撞到你的。","道歉用語"][cite: 2],
+    ["Thank you for your patience, I really appreciate it.","謝謝你的耐心，真的很感謝。","感謝對方耐心對待"][cite: 2]
   ]}
 ];
 (function(){

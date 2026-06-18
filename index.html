@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>伯斯旅行手帖 · Perth Travel Notebook</title>
+<meta name="theme-color" content="#FAF6F0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<!-- 引入 Tailwind CSS v3 用於結構微調 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg:#FAF6EF;
+  --surface:#FFFFFF;
+  --ink:#2B2622;
+  --ink-soft:#7A7167;
+  --ink-faint:#A89F94;
+  --line:rgba(43,38,34,.10);
+  --line-strong:rgba(43,38,34,.16);
+  --accent:#BD4332;
+  --accent-soft:#F5E2DC;
+  --accent-deep:#8F2F22;
+  --indigo:#3C4A6B;
+  --indigo-soft:#E2E6EF;
+  --sage:#717F5E;
+  --sage-soft:#E6EBDD;
+  --gold:#A4762E;
+  --gold-soft:#F2E5C5;
+  --radius-lg:18px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 2px rgba(43,38,34,.04), 0 6px 16px rgba(43,38,34,.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:#EDE7DC;
+  color:var(--ink);
+  font-family:'Noto Sans TC',-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+h1,h2,h3,h4{font-family:'Shippori Mincho',serif;margin:0;font-weight:600;letter-spacing:.02em;}
+p{margin:0 0 0;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;}
+
+.app-frame{
+  max-width:540px;
+  margin:0 auto;
+  min-height:100vh;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+}
+@media (min-width:560px){
+  body{padding:24px 0;}
+  .app-frame{
+    min-height:calc(100vh - 48px);
+    height:calc(100vh - 48px);
+    border-radius:28px;
+    box-shadow:0 1px 4px rgba(43,38,34,.08), 0 30px 60px -20px rgba(43,38,34,.35);
+    border:1px solid rgba(255,255,255,.6);
+  }
+}
+
+/* ---------- top bar ---------- */
+.topbar{
+  flex:0 0 auto;
+  padding:max(14px, env(safe-area-inset-top)) 20px 12px;
+  background:linear-gradient(180deg, var(--bg) 70%, rgba(250,246,239,0));
+  position:sticky; top:0; z-index:20;
+}
+.topbar-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+.topbar .eyebrow{font-size:11px;letter-spacing:.18em;color:var(--accent);font-weight:700;text-transform:uppercase;}
+.topbar h1{font-size:22px;color:var(--ink);margin-top:2px;font-weight:700;}
+.topbar .status{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;text-align:right;line-height:1.4;}
+.topbar .status b{color:var(--accent-deep);font-weight:700;}
+.hairline{height:1px;background:var(--line);margin-top:12px;}
+
+/* ---------- main scroll area ---------- */
+main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 20px 28px;}
+.page{display:none;animation:fade .25s ease;}
+.page.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.section-lead{margin:14px 0 18px;}
+.section-lead h2{font-size:19px;font-weight:700;}
+.section-lead p{font-size:14px;color:var(--ink-soft);margin-top:6px;}
+
+/* ---------- bottom tab nav ---------- */
+nav.tabbar{
+  flex:0 0 auto;
+  display:flex;
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  padding:6px 2px max(6px, env(safe-area-inset-bottom)) 2px;
+  position:sticky; bottom:0; z-index:20;
+  overflow-x:auto;
+}
+nav.tabbar button{
+  flex:1; min-width:55px;
+  background:none;border:none;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 2px;
+  color:var(--ink-faint);
+  font-size:11px;
+  cursor:pointer;
+  border-radius:10px;
+}
+nav.tabbar button svg{width:22px;height:22px;}
+nav.tabbar button.active{color:var(--accent-deep);font-weight:700;}
+nav.tabbar button.active svg{stroke:var(--accent-deep);}
+
+/* ---------- shared components ---------- */
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+.card h3{font-size:16.5px;font-weight:700;}
+.muted{color:var(--ink-soft);font-size:13px;}
+.tiny{font-size:12px;color:var(--ink-faint);}
+
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.02em;margin:4px 6px 4px 0;}
+.tag-eat{background:var(--accent-soft);color:var(--accent-deep);}
+.tag-menu{background:var(--gold-soft);color:var(--gold);}
+.tag-buy{background:var(--sage-soft);color:var(--sage);}
+.tag-book{background:var(--indigo-soft);color:var(--indigo);}
+
+.navbtn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:700;color:var(--accent-deep);
+  border:1px solid var(--accent-soft);background:var(--accent-soft);
+  padding:7px 14px;border-radius:999px;margin-top:8px;
+}
+.navbtn svg{width:14px;height:14px;}
+.navbtn.alt{color:var(--indigo);background:var(--indigo-soft);border-color:var(--indigo-soft);}
+
+.divider{height:1px;background:var(--line);margin:14px 0;}
+
+.seal{
+  flex:0 0 auto;width:36px;height:36px;border-radius:50%;
+  background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;
+  border:2px solid var(--accent-deep);
+}
+.day-head{display:flex;align-items:flex-start;gap:12px;}
+.day-head .titles{flex:1;}
+.day-head h3{font-size:16px;line-height:1.4;font-weight:700;}
+.day-head .day-sub{font-size:13px;color:var(--ink-soft);margin-top:2px;}
+.budget-chip{flex:0 0 auto;font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-soft);padding:4px 10px;border-radius:999px;white-space:nowrap;}
+
+.block{margin-top:14px;}
+.block h4{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;margin-bottom:6px;font-family:'Noto Sans TC',sans-serif;}
+.block p{font-size:14.5px;color:var(--ink);}
+.story{margin-top:12px;font-size:13.5px;color:var(--ink-soft);background:#F8F3EA;border-left:3px solid var(--gold);padding:10px 12px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;}
+
+.meal{padding:12px 0;border-top:1px solid var(--line);}
+.meal:first-child{border-top:none;}
+.meal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.meal-tag{font-size:11px;font-weight:700;color:#fff;background:var(--ink);padding:2px 8px;border-radius:6px;}
+.meal-name{font-weight:700;font-size:14.5px;margin-top:6px;color:var(--ink);}
+.meal-note{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
+
+.done-toggle{display:flex;align-items:center;gap:7px;margin-top:14px;font-size:13px;color:var(--ink-soft);cursor:pointer;}
+.done-toggle input{width:17px;height:17px;accent-color:var(--accent);}
+
+/* packing list */
+.pack-cat{margin-bottom:18px;}
+.pack-cat h3{font-size:14.5px;color:var(--indigo);margin-bottom:8px;font-weight:700;}
+.pack-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);}
+.pack-item input[type=checkbox]{margin-top:4px;width:18px;height:18px;accent-color:var(--accent);flex:0 0 auto;}
+.pack-text{flex:1;font-size:14.5px;outline:none;border-radius:6px;padding:2px 4px;color:var(--ink);}
+.pack-text:focus{background:var(--accent-soft);}
+.pack-item.checked .pack-text{color:var(--ink-faint);text-decoration:line-through;}
+.add-item{font-size:13px;color:var(--accent-deep);font-weight:700;background:none;border:1px dashed var(--line-strong);width:100%;padding:8px;border-radius:var(--radius-sm);margin-top:6px;cursor:pointer;}
+
+/* segmented control */
+.segment {display:flex;background:#F0EAE0;border-radius:999px;padding:3px;margin-bottom:16px;}
+.segment button{flex:1;border:none;background:none;padding:8px 4px;border-radius:999px;font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;}
+.segment button.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.subpage{display:none;}
+.subpage.active{display:block;}
+
+/* phrase list */
+.phrase{padding:12px 0;border-bottom:1px solid var(--line);}
+.phrase:last-child{border-bottom:none;}
+.phrase .en{font-weight:700;font-size:14.5px;color:var(--accent-deep);}
+.phrase .zh{font-size:13.5px;color:var(--ink);margin-top:2px;}
+.phrase .ctx{font-size:11.5px;color:var(--ink-faint);margin-top:3px;font-style:italic;}
+
+/* flight timeline */
+.timeline{position:relative;padding-left:18px;margin-top:10px;}
+.timeline::before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:var(--line-strong);}
+.tl-item{position:relative;padding-bottom:16px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:"";position:absolute;left:-18px;top:3px;width:9px;height:9px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);}
+.tl-time{font-weight:700;font-size:15px;}
+.tl-date{font-size:11.5px;color:var(--accent-deep);font-weight:700;}
+.tl-place{font-size:14px;margin-top:2px;}
+.tl-flight{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+.layover{background:var(--indigo-soft);color:var(--indigo);font-size:13px;border-radius:var(--radius-sm);padding:8px 10px;margin:6px 0 12px;}
+.layover b{font-weight:700;}
+
+.bag-row{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line);}
+.bag-row:last-child{border-bottom:none;}
+
+.checklist-simple{margin-top:8px;}
+.checklist-simple .pack-item{padding:7px 0;}
+.notice{background:var(--accent-soft);color:var(--accent-deep);font-size:13.5px;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-weight:500;}
+
+/* cafe cards */
+.place-card{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+.place-card:last-child{border-bottom:none;}
+.place-mark{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:6px;}
+.place-card h4{font-size:14.5px;font-weight:700;color:var(--ink);}
+.place-card p{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
+
+iframe.budget-frame{width:100%;height:64vh;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;}
+.openlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--indigo);margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="app-frame">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <div>
+        <div class="eyebrow">Perth · 西澳伯斯</div>
+        <h1 id="pageTitle">航班資訊</h1>
+      </div>
+      <div class="status" id="tripStatus">—</div>
+    </div>
+    <div class="hairline"></div>
+  </header>
+
+  <main id="mainScroll">
+
+    <!-- ===================== PAGE 1：航班資訊 & 事前注意事項 ===================== -->
+    <section class="page active" id="page-flight">
+      <div class="section-lead">
+        <h2>台北 ⇄ 伯斯 · 酷航 Scoot</h2>
+        <p>全程經新加坡樟宜機場轉機，行李皆已直掛到底，轉機時不需提取行李。</p>
+      </div>
+
+      <div class="card">
+        <h3>去程航段 ▎7月4日 → 7月5日</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-date">7月4日（六）</div>
+            <div class="tl-time">23:50 出發</div>
+            <div class="tl-place">TPE 桃園國際機場 T1</div>
+            <div class="tl-flight">TR893 · 波音787-8 · 經濟艙H</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">7月5日（日）</div>
+            <div class="tl-time">04:15 抵達轉機</div>
+            <div class="tl-place">SIN 新加坡樟宜機場 T1</div>
+            <div class="layover">轉機 <b>10時5分</b> · 行李直掛，免提取 → 詳見「新加坡轉機」分頁</div>
+            <div class="tl-time">14:20 出發</div>
+            <div class="tl-place">SIN 樟宜機場 T1</div>
+            <div class="tl-flight">TR004 · 波音787-8 · 經濟艙H</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">19:30 抵達</div>
+            <div class="tl-place">PER 伯斯機場 T1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>回程航段 ▎7月20日 → 7月21日</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-date">7月20日（一）</div>
+            <div class="tl-time">18:25 出發</div>
+            <div class="tl-place">PER 伯斯機場 T1</div>
+            <div class="tl-flight">TR009 · 波音787-8 · 經濟艙H</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">23:45 抵達轉機</div>
+            <div class="tl-place">SIN 樟宜機場 T1</div>
+            <div class="layover">轉機 <b>1時15分</b>（隔日轉機）· 行李直掛 · 兩段都在 T1 航廈</div>
+            <div class="tl-date">7月21日（二）</div>
+            <div class="tl-time">01:00 出發</div>
+            <div class="tl-place">SIN 樟宜機場 T1</div>
+            <div class="tl-flight">TR866 · 波音787-9 · 經濟艙H · 夜間航班</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">05:45 抵達</div>
+            <div class="tl-place">TPE 桃園國際機場 T1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>託運行李明細 (已加購)</h3>
+        <p class="muted" style="margin-bottom:8px;">去程：台北→伯斯（每人）</p>
+        <div class="bag-row"><span>CHENG / YUTING</span><span>20 kg</span></div>
+        <div class="bag-row"><span>KUO / YUCHENG</span><span>20 kg</span></div>
+        <div class="bag-row"><span>KUO / YUCHI</span><span>20 kg</span></div>
+        <p class="muted" style="margin:14px 0 8px;">回程：伯斯→台北（每人）</p>
+        <div class="bag-row"><span>CHENG / YUTING</span><span>25 kg</span></div>
+        <div class="bag-row"><span>KUO / YUCHENG</span><span>20 kg</span></div>
+        <div class="bag-row"><span>KUO / YUCHI</span><span>20 kg</span></div>
+      </div>
+
+      <div class="card">
+        <h3>出發前注意事項 (可同步勾選)</h3>
+        <div class="checklist-simple" id="predepList"></div>
+      </div>
+    </section>
+
+    <!-- ===================== PAGE 2：建議攜帶物品 ===================== -->
+    <section class="page" id="page-packing">
+      <div class="section-lead">
+        <h2>行前打包檢查清單</h2>
+        <p>點擊文字可直接編輯自訂內容。勾選後會自動加上刪除線，並保持離線記憶儲存。</p>
+      </div>
+      <div id="packingRoot"></div>
+    </section>
+
+    <!-- ===================== PAGE 3：每日行程 ===================== -->
+    <section class="page" id="page-itinerary">
+      <div class="section-lead">
+        <h2>9 天深度探索行程</h2>
+        <p>配合每週出遊 4 天加計精選行程規劃。車程皆在 2 小時內，或符合 Uber 台幣 300 元內接駁標準。右上角為整天預估花費（不含住宿）。</p>
+      </div>
+      <div id="itineraryRoot"></div>
+    </section>
+
+    <!-- ===================== PAGE 4：日常探店清單 ===================== -->
+    <section class="page" id="page-food">
+      <div class="section-lead">
+        <h2>口袋探店與小吃清單</h2>
+        <p>包含住所 Manning 周邊的平價美食補給站，以及伯斯市中心極具實力的精品咖啡與小吃。</p>
+      </div>
+      <div class="segment" id="foodSegment">
+        <button class="active" data-sub="food-near">住所周邊 (Manning/Waterford)</button>
+        <button data-sub="food-city">伯斯市區 & 北橋</button>
+      </div>
+      <div class="subpage active" id="food-near"></div>
+      <div class="subpage" id="food-city"></div>
+    </section>
+
+    <!-- ===================== PAGE 5：旅遊常用口語 ===================== -->
+    <section class="page" id="page-phrases">
+      <div class="section-lead">
+        <h2>旅行英文常用口語</h2>
+        <p>完整還原原手帖精選短句，依情境與脈絡細緻分類（不含飯店情境），便於即時查閱。</p>
+      </div>
+      <div id="phrasesRoot"></div>
+    </section>
+
+    <!-- ===================== PAGE 6：新加坡轉機攻略 ===================== -->
+    <section class="page" id="page-transit">
+      <div class="section-lead">
+        <h2>新加坡樟宜機場 10 小時轉機</h2>
+        <p>酷航去回程皆在 T1 航廈，不需跨航廈移動，動線極為流遷。</p>
+      </div>
+      <div id="transitRoot"></div>
+    </section>
+
+    <!-- ===================== PAGE 7：記帳帳本內嵌 ===================== -->
+    <section class="page" id="page-budget">
+      <div class="section-lead">
+        <h2>旅費雲端記帳本</h2>
+        <p>無縫整合您的既有記帳系統。若畫面載入較慢，可點選下方按鈕直接開啟外部新視窗。</p>
+      </div>
+      <div class="card" style="padding:8px;">
+        <iframe class="budget-frame" src="https://rainbow-sopapillas-7baf39.netlify.app/" title="旅費記帳本" loading="lazy"></iframe>
+      </div>
+      <a class="openlink" href="https://rainbow-sopapillas-7baf39.netlify.app/" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7M21 3 10 14M21 14v7H3V3h7"/></svg>
+        在新視窗開啟外部記帳本
+      </a>
+    </section>
+
+  </main>
+
+  <!-- 底部固定式導覽列 -->
+  <nav class="tabbar" id="tabbar">
+    <button data-page="page-flight" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 13.5 3 17l.5-2.5L12 10V6a2 2 0 1 1 4 0v4l8.5 4.5-.5 2.5-7.5-3-1 4 2 1.5-.5 1.5-3-1-3 1-.5-1.5 2-1.5-1-4Z"/></svg>
+      航班
+    </button>
+    <button data-page="page-packing">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="4" width="14" height="17" rx="2"/><path stroke-linecap="round" d="M9 9h6M9 13h6M9 17h3"/></svg>
+      行李
+    </button>
+    <button data-page="page-itinerary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5" width="16" height="15" rx="2"/><path stroke-linecap="round" d="M4 9h16M8 3v4M16 3v4"/></svg>
+      行程
+    </button>
+    <button data-page="page-food">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M5 9V4M8 9V4M5 9a3 3 0 0 0 3 3v8M8 12h0M16 4v16M16 4a4 4 0 0 1 4 4v3h-4"/></svg>
+      探店
+    </button>
+    <button data-page="page-phrases">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a8 8 0 1 1-3.5-6.6L21 4l-1 4.2A8 8 0 0 1 21 12Z"/><path stroke-linecap="round" d="M8 11h8M8 14h5"/></svg>
+      英文
+    </button>
+    <button data-page="page-transit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h13l-3-3M21 17H8l3 3"/></svg>
+      轉機
+    </button>
+    <button data-page="page-budget">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2"/><path stroke-linecap="round" d="M3 10h18M7 14h3"/></svg>
+      記帳
+    </button>
+  </nav>
+</div>
+
+<script>
+/* ============================================================
+   基礎環境配置與資料庫常數
+============================================================ */
+const HOME_ADDR = "23b Henning crescent Manning WA 6152";
+const STORE_KEY = "perth-trip-notebook-v3";
+
+function loadStore(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveStore(s){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){}
+}
+let STORE = loadStore();
+
+function mapsLink(dest, mode){
+  mode = mode || "transit";
+  return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(HOME_ADDR) +
+         "&destination=" + encodeURIComponent(dest) + "&travelmode=" + mode;
+}
+function navIcon(){
+  return '<svg class="mr-1 inline-block" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 11l18-7-7 18-2-8-9-3Z"/></svg>';
+}
+function navBtn(label, dest, mode, alt){
+  return '<a class="navbtn'+(alt?' alt':'')+'" target="_blank" rel="noopener" href="'+mapsLink(dest, mode)+'">'+navIcon()+label+'</a>';
+}
+function tagHtml(cls, label, text){
+  return '<span class="tag '+cls+'">'+label+(text? '：'+text : '')+'</span>';
+}
+
+/* ============================================================
+   分頁切換邏輯
+============================================================ */
+const TITLES = {
+  "page-flight":"航班資訊",
+  "page-packing":"行前打包清單",
+  "page-itinerary":"每日行程安排",
+  "page-food":"口袋探店清單",
+  "page-phrases":"英文常用口語",
+  "page-transit":"新加坡轉機攻略",
+  "page-budget":"旅費雲端記帳"
+};
+document.getElementById("tabbar").addEventListener("click", function(e){
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(btn.dataset.page).classList.add("active");
+  document.getElementById("pageTitle").textContent = TITLES[btn.dataset.page];
+  document.getElementById("mainScroll").scrollTop = 0;
+});
+
+/* ============================================================
+   旅程倒數進度條
+============================================================ */
+(function(){
+  const start = new Date(2026,6,5); // 7月5日
+  const end = new Date(2026,6,21);  // 7月21日
+  const now = new Date();
+  const el = document.getElementById("tripStatus");
+  const oneDay = 86400000;
+  if(now < start){
+    const d = Math.ceil((start-now)/oneDay);
+    el.innerHTML = "距離出發<br><b>"+d+" 天</b>";
+  }else if(now <= end){
+    const d = Math.floor((now-start)/oneDay)+1;
+    el.innerHTML = "旅程第 <b>"+d+"</b> 天";
+  }else{
+    el.innerHTML = "旅程已結束<br>歡迎回顧 ✓";
+  }
+})();
+
+/* ============================================================
+   PAGE 1 — 出發前準備 (記憶功能)
+============================================================ */
+const predep = [
+  "確認護照效期（離境時滿 6 個月以上）",
+  "申請並確認澳洲電子簽證（ETA, subclass 601）已核發",
+  "出發前 3 天內線上填寫新加坡電子入境卡（SG Arrival Card）",
+  "購買並投保旅平險（時間建議報 7/4 傍晚至 7/21 午夜）",
+  "起飛前 48 小時內完成酷航網頁線上報到",
+  "漫遊上網設定完成，或提前安裝好當地 eSIM 數據卡",
+  "準備聯邦吉鶴卡實體卡（年享 2 次免費 LoungeKey 機場貴賓室）",
+  "確認行動電源、鋰電池皆放置於隨身行李，不可托運"
+];
+(function(){
+  const root = document.getElementById("predepList");
+  predep.forEach((text,i)=>{
+    const id = "predep-"+i;
+    const checked = STORE[id] ? "checked" : "";
+    const wrap = document.createElement("div");
+    wrap.className = "pack-item" + (STORE[id]?" checked":"");
+    wrap.innerHTML = '<input type="checkbox" '+checked+' data-id="'+id+'"><span class="pack-text">'+text+'</span>';
+    root.appendChild(wrap);
+  });
+  root.addEventListener("change", function(e){
+    if(e.target.matches("input[type=checkbox]")){
+      const id = e.target.dataset.id;
+      STORE[id] = e.target.checked;
+      e.target.closest(".pack-item").classList.toggle("checked", e.target.checked);
+      saveStore(STORE);
+    }
+  });
+})();
+
+/* ============================================================
+   PAGE 2 — 可編輯打包清單 (記憶功能)
+============================================================ */
+const packData = [
+  { cat:"重要證件與金錢", items:[
+    "護照正本、大頭照備用 1 張",
+    "澳洲 ETA 簽證核准信與新加坡轉機截圖",
+    "聯邦吉鶴卡 (實體卡驗證)、國泰CUBE卡",
+    "少量澳幣現金備用"
+  ]},
+  { cat:"電子設備與配件", items:[
+    "手機、相機、對應充電線材",
+    "行動電源 (必須隨身)",
+    "澳洲轉接頭 (八字三孔扁型)",
+    "降噪耳機 (長途飛行補眠)"
+  ]},
+  { cat:"冬季保暖衣物 (伯斯7月正值冬季)", items:[
+    "防風防潑水外套、發熱衣",
+    "長袖上衣 x4、毛衣 x1、長褲 x3",
+    "保暖毛帽、圍巾 (海邊風大體感涼)",
+    "舒適好走布鞋、室內拖鞋"
+  ]},
+  { cat:"個人醫藥與盥洗用品", items:[
+    "個人常備藥 (感冒、腸胃、止痛藥)",
+    "防曬乳、護唇膏 (冬季溫差大易乾燥)",
+    "折疊雨傘 (防範冬日陣雨)"
+  ]}
+];
+(function(){
+  const root = document.getElementById("packingRoot");
+  packData.forEach((group, gi)=>{
+    const catWrap = document.createElement("div");
+    catWrap.className = "card pack-cat";
+    let html = "<h3>"+group.cat+"</h3>";
+    group.items.forEach((text, ii)=>{
+      const id = "pack-"+gi+"-"+ii;
+      const saved = STORE[id] || {};
+      const checked = saved.done ? "checked" : "";
+      const label = (saved.text !== undefined) ? saved.text : text;
+      html += '<div class="pack-item'+(saved.done?" checked":"")+'" data-id="'+id+'">'+
+              '<input type="checkbox" '+checked+'>'+
+              '<span class="pack-text" contenteditable="true">'+label+'</span>'+
+              '</div>';
+    });
+    html += '<button class="add-item" data-cat="'+gi+'">+ 新增自訂項目</button>';
+    catWrap.innerHTML = html;
+    root.appendChild(catWrap);
+  });
+
+  root.addEventListener("change", function(e){
+    if(e.target.matches("input[type=checkbox]")){
+      const item = e.target.closest(".pack-item");
+      const id = item.dataset.id;
+      const saved = STORE[id] || {};
+      saved.done = e.target.checked;
+      STORE[id] = saved;
+      item.classList.toggle("checked", e.target.checked);
+      saveStore(STORE);
+    }
+  });
+  root.addEventListener("input", function(e){
+    if(e.target.matches(".pack-text")){
+      const item = e.target.closest(".pack-item");
+      const id = item.dataset.id;
+      const saved = STORE[id] || {};
+      saved.text = e.target.textContent;
+      STORE[id] = saved;
+      saveStore(STORE);
+    }
+  });
+  root.addEventListener("click", function(e){
+    if(e.target.matches(".add-item")){
+      const gi = e.target.dataset.cat;
+      const newId = "pack-"+gi+"-extra-"+Date.now();
+      const div = document.createElement("div");
+      div.className = "pack-item";
+      div.dataset.id = newId;
+      div.innerHTML = '<input type="checkbox"><span class="pack-text" contenteditable="true">點擊編輯新項目</span>';
+      e.target.parentNode.insertBefore(div, e.target);
+      div.querySelector(".pack-text").focus();
+    }
+  });
+})();
+
+/* ============================================================
+   PAGE 3 — 每日行程安排數據庫 (延伸至 9 天完整版)
+============================================================ */
+const days = [
+{
+  no:1, date:"7月6日（一）", title:"國王公園 Kings Park ＆ 伊麗莎白碼頭",
+  sub:"市區人文自然散步", budget:"整天預估花費：約台幣 950 元",
+  weather:"🌤️ 天氣預報：11°C - 17°C ▎冬令偏冷、注意早晚防風",
+  story:"國王公園占地超過 400 公頃，保留了大片西澳原始灌木林，原為原住民努格賈族的聚會聖地。園內的戰爭紀念碑與空中步道是俯瞰天鵝河天際線的絕佳位置，適合做為探索伯斯的第一站。",
+  transport:{text:"從 Manning 住處步行至 Manning Rd 站牌，搭乘 <b>30 或 31 號公車</b> 直達伯斯市區伊麗莎白碼頭巴士站，車程約 20–25 分鐘，班次密集。", dest:"Kings Park, Fraser Ave, Kings Park WA 6005", mode:"transit"},
+  spots:[
+    {name:"國王公園 Kings Park & Botanic Garden", dest:"Kings Park, Fraser Ave, Kings Park WA 6005", note:"DNA Tower、戰爭紀念碑、天空步道完全免費參觀。"},
+    {name:"伊麗莎白碼頭 Elizabeth Quay", dest:"Elizabeth Quay, Perth WA 6000", note:"現代化濱水碼頭，適合傍晚拍攝天鵝河夕陽。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"Howard's Groove (市區)", note:"隱密於商務區地下半樓。人均約 AU$15。", dest:"Howard's Groove, Perth CBD", tags:[["tag-menu","必點菜單","燕麥聖安娜冷萃咖啡 / 經典熱壓吐司"]]},
+    {tag:"午餐", name:"Soi29 (市區美食街)", note:"道地高評價泰式料理。人均約 AU$15。", dest:"Soi29, Perth CBD", tags:[["tag-eat","必吃美食","慢燉牛肉泰北金麵 (Khao Soi)"]]},
+    {tag:"晚餐", name:"Hifumiya Udon (市區)", note:"超人氣平價日式手打烏龍麵。人均約 AU$18。", dest:"Hifumiya Udon, Perth CBD", tags:[["tag-eat","必吃美食","牛肉冷烏龍麵 / 現炸蔬菜天婦羅"]]}
+  ],
+  prep:"國王公園園區遼闊，建議著舒適步鞋。傍晚碼頭河風強勁，請備妥外套。"
+},
+{
+  no:2, date:"7月8日（三）", title:"弗里曼特爾港口小鎮 Fremantle",
+  sub:"古蹟巡禮與歐風海港街景", budget:"整天預估花費：約台幣 1,100 元",
+  weather:"🌧️ 天氣預報：10°C - 16°C ▎多雲、局部冬日陣雨",
+  story:"弗里曼特爾是保存完好的 19 世紀港口城鎮，古老的維多利亞風格建築林立。圓屋（Round House）建於 1831 年，是西澳最古老的公共古蹟；著名的卡布奇諾街則充滿露天咖啡座，洋溢濃厚歐洲風情。",
+  transport:{text:"自住處搭公車至 Canning Bridge Station，轉乘 <b>910 號公車</b> 直達終點 Fremantle 火車站，所有核心景點出站後皆可步行抵達。", dest:"Fremantle Station, Fremantle WA 6160", mode:"transit"},
+  spots:[
+    {name:"弗里曼特爾市集 Fremantle Markets", dest:"Fremantle Markets, South Terrace, Fremantle WA 6160", note:"百年傳統市集，集結手工藝品與異國美食小吃。"},
+    {name:"圓屋 Round House ＆ 漁港步道", dest:"The Round House, Fremantle WA 6160", note:"登頂可一覽歷史漁港與印度洋的壯闊海景。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"Moore & Moore Cafe", note:"由歷史藝術村建物改建的質感咖啡廳。人均約 AU$20。", dest:"Moore & Moore Cafe, Fremantle", tags:[["tag-menu","必點菜單","酪梨酸種麵包佐水波蛋"]]},
+    {tag:"午餐", name:"Fremantle Markets 內部小吃", note:"各國排檔美味聚集。人均約 AU$15-25。", dest:"Fremantle Markets, Fremantle", tags:[["tag-eat","必吃美食","傳統蜂蜜蛋糕 / 澳式手工肉派"]]},
+    {tag:"晚餐", name:"Cicerello's (漁港店)", note:"港邊百年字號傳統海鮮餐廳. 人均約 AU$25-35。", dest:"Cicerello's Fremantle", tags:[["tag-eat","必吃美食","招牌經典炸魚薯條拼盤 (Fish & Chips)"]]}
+  ],
+  prep:"<b>【重要預約】</b>：若計畫參觀著名的弗里曼特爾監獄世界遺產導覽，建議提早於官網線上預約。注意市集僅在週五、六、日開放。"
+},
+{
+  no:3, date:"7月10日（五）", title:"卡弗沙姆野生動物園 ＆ 天鵝谷酒莊",
+  sub:"親近袋鼠與品味鄉村小鎮", budget:"整天預估花費：約台幣 2,200 元",
+  weather:"🌤️ 天氣預報：12°C - 18°C ▎晴時多雲、極為舒適",
+  story:"天鵝谷是西澳最古老的葡萄酒鄉，沿途充滿精緻酒莊與手工食品坊。毗鄰的卡弗沙姆野生動物園則能讓你一睹無尾熊、袋鼠與塔斯馬尼亞惡魔等澳洲特有生物的風采。",
+  transport:{text:"搭公車到伯斯車站，轉乘 <b>Ellenbrook 線火車</b> 直達 Whiteman Park 站（26分鐘）。下車後<b>轉搭 Uber 僅需台幣約 200 元</b>，完全符合預算標準！", dest:"Caversham Wildlife Park, Whiteman WA 6068", mode:"transit"},
+  spots:[
+    {name:"卡弗沙姆野生動物園 Caversham Wildlife Park", dest:"Caversham Wildlife Park, Whiteman WA 6068", note:"可免費與無尾熊拍照、親手餵食袋鼠。"},
+    {name:"吉爾福德歷史老鎮 (Guildford)", dest:"Guildford WA 6055", note:"保留 19 世紀殖民色彩的古典鄉村街道。"}
+  ],
+  meals:[
+    {tag:"午餐", name:"Mandoon Estate (酒莊景觀餐廳)", note:"綠草如茵的頂級酒莊。人均約 AU$28。", dest:"Mandoon Estate, Caversham", tags:[["tag-eat","必吃美食","精選酒莊輕食 / 在地起司拼盤"]]},
+    {tag:"伴手禮", name:"Margaret River Chocolate Co.", note:"可自由試吃的巨型巧克力工廠。人均約 AU$15。", dest:"Margaret River Chocolate Company, Swan Valley", tags:[["tag-buy","必買伴手禮","頂級手工綜合巧克力禮盒 / 澳洲堅果風味豆"]]},
+    {tag:"晚餐", name:"吉爾福德老鎮英式小酒館", note:"極具歷史感的老牌家庭餐館。人均約 AU$25。", dest:"Guildford Hotel, Guildford", tags:[["tag-menu","必點菜單","經典澳式烤冷牛肉排"]]}
+  ],
+  prep:"<b>【重要預約代號】</b>：動物園門票建議提前線上購票，並在代碼框內編輯記下預約代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。"
+},
+{
+  no:4, date:"7月12日（日）", title:"羅特尼斯島 Rottnest Island 一日遊",
+  sub:"造訪短尾矮袋鼠的純淨無車島", budget:"整天預估花費：約台幣 3,300 元",
+  weather:"🌤️ 天氣預報：12°C - 18°C ▎印度洋海風強勁、體感偏涼",
+  story:"羅特尼斯島是西澳最神盛的度假海島。全島禁止私家汽車通行，環境極其純淨，這裏是世界上唯一能看見野生微笑袋鼠 Quokka 的原產地，生態極其珍貴。",
+  transport:{text:"搭乘公車前往 Fremantle 的 <b>B Shed 渡輪碼頭</b>，再搭乘已預約的高速渡輪直達海島（船程約 30 分鐘）。島上建議租借腳踏車移動。", dest:"Victoria Quay, Fremantle WA 6160", mode:"transit"},
+  spots:[
+    {name:"湯姆森灣 Thomson Bay 核心商圈", dest:"Thomson Bay, Rottnest Island", note:"尋找微笑短尾矮袋鼠 Quokka 的最佳出沒點。"},
+    {name:"小沙灘 The Basin 天然海池", dest:"The Basin, Rottnest Island", note:"擁有水晶般透明度的海灣，冬季前來拍照亦極美。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"住處自備平價輕食", note:"因清晨船班較早，建議在 Manning 住處自備簡單三明治。", dest:"Manning WA 6152", tags:[]},
+    {tag:"午餐", name:"Rottnest Island Bakery", note:"島上唯一的百年平價經典烘焙店。人均約 AU$15。", dest:"Rottnest Island Bakery", tags:[["tag-eat","必吃美食","多汁現烤澳式牛肉鹹派 (Meat Pie) / 傳統烘焙肉捲"]]},
+    {tag:"晚餐", name:"Bull Creek Hawker (星馬排檔)", note:"回程在 Bull Creek 火車站下車順道享用。人均約 AU$20。", dest:"Bull Creek Hawker", tags:[["tag-menu","必點菜單","招牌濃郁新加坡咖哩叻沙麵 / 海南雞飯"]]}
+  ],
+  prep:"<b>【重要預約代號】</b>：來回渡輪船票（含上島費）極為熱門，務必提前線上預約。記下您的預約船班代碼：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。冬季海風強，請備妥防風連帽外套與暈船藥。"
+},
+{
+  no:5, date:"7月14日（二）", title:"希拉里斯港 ＆ 西澳水族館 AQWA",
+  sub:"漫步北郊巨型遊艇休閒碼頭", budget:"整天預估花費：約台幣 1,900 元",
+  weather:"🌧️ 天氣預報：10°C - 16°C ▎多雲、有冬日局部短暫陣雨",
+  story:"希拉里斯港是伯斯北郊設備極其完善的避風港灣，AQWA 水族館則擁有全長 100 公尺的巨型海底隧道，展出西澳沿海特有的豐富海洋生態與巨大魟魚。",
+  transport:{text:"搭公車至市區轉運站，轉乘北線大眾運輸公車前往。下車後<b>轉搭 Uber 僅需台幣約 180 元</b>，省時省力！", dest:"AQWA, Hillarys WA 6025", mode:"transit"},
+  spots:[
+    {name:"西澳水族館 AQWA", dest:"AQWA, Hillarys WA 6025", note:"門票約 AU$34。擁有極宏偉的海底步行隧道。"},
+    {name:"希拉里斯港休閒碼頭 Hillarys Boat Harbour", dest:"Hillarys Boat Harbour, Hillarys WA 6025", note:"停滿高級遊艇的歐式美麗海港，設有眾多露天小店。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"Mary Street Bakery (港區分店)", note:"西澳家喻戶曉的人氣經典烘焙坊。人均約 AU$20。", dest:"Mary Street Bakery, Hillarys", tags:[["tag-menu","必點菜單","招牌熔岩肉桂捲 / 爆漿經典甜甜圈"]]},
+    {tag:"午餐", name:"The Boardwalk 景觀餐廳", note:"直面港灣遊艇美景的平價美式簡餐。人均約 AU$24。", dest:"The Boardwalk, Hillarys", tags:[["tag-eat","必吃美食","脆皮美式起司漢堡 / 酥炸魷魚圈"]]},
+    {tag:"晚餐", name:"北橋區亞洲街頭料理", note:"回程在北橋區享用熱熱的熱湯麵。人均約 AU$18。", dest:"Northbridge, Perth", tags:[]}
+  ],
+  prep:"<b>【重要預約代號】</b>：AQWA 水族館門票建議線上提前預訂，填寫代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。館內冷氣空調較強，建議多備一件薄外套。"
+},
+{
+  no:6, date:"7月16日（四）", title:"科特斯洛海灘 ＆ 斯卡伯勒海灘",
+  sub:"沿著印度洋海岸線追逐落日", budget:"整天預估花費：約台幣 1,600 元",
+  weather:"🌤️ 天氣預報：11°C - 16°C ▎晴朗、印度洋海風極其強勁",
+  story:"科特斯洛海灘是伯斯的指標性沙灘，建於百年前的 Indiana Tea House 巍峨矗立在沙灘旁。斯卡伯勒海灘則是著名的夕陽大道，聚集了無數極具活力、看落日的衝浪風格小店。",
+  transport:{text:"搭乘 <b>Fremantle 線火車</b> 直達 Cottesloe 站，步行 10 分鐘到海灘。結束後兩個海灘間距離 8 公里，<b>搭乘 Uber 接駁僅需台幣約 220 元</b>，極度推薦此走法！", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", mode:"transit"},
+  spots:[
+    {name:"科特斯洛海灘 Cottesloe Beach", dest:"Cottesloe Beach, Marine Parade, Cottesloe WA 6011", note:"伯斯最負盛名的白色海灘，日落景緻冠絕西澳。"},
+    {name:"斯卡伯勒夕陽大道 Scarborough Beach", dest:"Scarborough Beach, Scarborough WA 6019", note:"近期重新開發的海濱觀景步道，看印度洋夕陽毫無遮蔽。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"Laika Coffee (南區住所附近)", note:"出發前先在 Manning 附近的頂級咖啡店用餐。人均約 AU$20。", dest:"Laika Coffee, Lathlain", tags:[["tag-menu","必點菜單","經典英式大拼盤餐佐拿鐵咖啡"]]},
+    {tag:"午餐", name:"Amberjacks (科特斯洛店)", note:"海灘第一排高評價炸魚薯條。人均約 AU$20。", dest:"Amberjacks Cottesloe", tags:[["tag-eat","必吃美食","外帶鱈魚薯條至沙灘長椅野餐"]]},
+    {tag:"晚餐", name:"El Grotto (斯卡伯勒)", note:"海濱道地墨式酒吧餐館。人均約 AU$28。", dest:"El Grotto, Scarborough", tags:[["tag-eat","必吃美食","鮮美手撕豬肉塔可餅 (Tacos)"]]}
+  ],
+  prep:"7 月冬季的落日時間準時在下午 17:30 左右，海邊風勢非常強大，建議在 16:30 前完成卡位，並穿戴保暖毛帽與防風防寒大衣。"
+},
+{
+  no:7, date:"7月18日（六）", title:"伯斯動物園 ＆ 南伯斯河岸老磨坊",
+  sub:"體驗經典天鵝河通勤渡輪", budget:"整天預估花費：約台幣 2,000 元",
+  weather:"🌤️ 天氣預報：12°C - 17°C ▎多雲時晴、氣候宜人",
+  story:"伯斯動物園創立於 1898 年，是澳洲歷史最悠久的動物園之一，園內保留許多殖民時期老建築。南伯斯河岸的老磨坊 (Old Mill) 則建於 1835 年，是伯斯最早用於生產麵粉的開拓建築，富含濃厚的拓荒歷史故事。",
+  transport:{text:"從 Manning 搭公車至伊麗莎白碼頭，直接在碼頭轉乘官方<b>天鵝河過河交通渡輪 (Ferry)</b> 直達南伯斯動物園碼頭，全程約 35 分鐘，渡輪景致極佳。", dest:"Perth Zoo, South Perth WA 6151", mode:"transit"},
+  spots:[
+    {name:"伯斯動物園 Perth Zoo", dest:"Perth Zoo, South Perth WA 6151", note:"門票約 AU$37。可近距離一睹澳洲丁狗 (Dingo) 與袋熊。"},
+    {name:"南伯斯老磨坊古蹟 Old Mill", dest:"Old Mill, South Perth WA 6151", note:"伯斯拓荒時期的風力磨坊古蹟，對外免費參觀。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"Community Coffee Co. (市區店)", note:"伯斯職人界精品烘豆名店。人均約 AU$15。", dest:"Community Coffee Co., Perth", tags:[["tag-menu","必點菜單","單品手沖豆咖啡 / 脆皮牛角可頌"]]},
+    {tag:"午餐", name:"Perth Zoo Café", note:"動物園內置的便利景觀輕食餐廳。人均約 AU$20。", dest:"Perth Zoo", tags:[]},
+    {tag:"晚餐", name:"Coode Street 河岸餐酒一條街", note:"南伯斯最知名的景觀餐飲聚落。人均約 AU$26。", dest:"Coode St, South Perth", tags:[["tag-eat","必吃美食","窯烤雞肉總匯披薩配天鵝河夜景"]]}
+  ],
+  prep:"<b>【重要預約代號】</b>：動物園門票可線上預約電子票。記下代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。園區占地大，建議安排至少 3 小時。"
+},
+{
+  no:8, date:"7月19日（日）", title:"北橋藝文特區 ＆ 博物館最後巡禮",
+  sub:"多元文化與歷史常設展", budget:"整天預估花費：約台幣 1,100 元",
+  weather:"🌤️ 天氣預報：11°C - 17°C ▎冬令清朗、適合室內藝文行程",
+  story:"北橋（Northbridge）是伯斯多元文化的融爐。緊鄰的西澳博物館 Boola Bardip 於近期重新翻修完成，用極其震撼的視覺建築，向世人展示這片西澳大陸的自然史與深刻的原住民文化故事。",
+  transport:{text:"自 Manning 直接搭乘 <b>30 或 31 號公車</b> 直達市區伊麗莎白碼頭，步行或穿過地下通道前往北橋文化中心，全程僅 30 分鐘。", dest:"WA Museum Boola Bardip, Perth WA 6000", mode:"transit"},
+  spots:[
+    {name:"西澳博物館 Boola Bardip", dest:"WA Museum Boola Bardip, Perth WA 6000", note:"常設展覽完全免費開放。內部設計極具當代建築美學。"},
+    {name:"北橋 James Street 唐人街", dest:"James St, Northbridge WA 6003", note:"伯斯最著名的亞洲飲食、小吃、珍奶聚集的核心商圈。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"Secret Garden Cafe (南伯斯)", note:"擁有高雅英式花園中庭的老牌家庭咖啡廳。人均約 AU$25。", dest:"Secret Garden Cafe, South Perth", tags:[["tag-menu","必點菜單","傳統大盤英式早餐 (Full Breakfast)"]]},
+    {tag:"午餐", name:"Hawker Hall (北橋星馬排檔)", note:"東南亞風味美食廣場，平價多選擇，約 AU$18。", dest:"Hawker Hall, Northbridge", tags:[["tag-eat","必吃美食","星馬黑醬乾撈麵 / 招牌咖哩叻沙"]]},
+    {tag:"晚餐", name:"Optus Stadium 河岸新興特區", note:"步行前往體育場河岸特區，觀賞高樓點燈夜景。人均約 AU$26。", dest:"Optus Stadium, Burswood", tags:[["tag-eat","必吃美食","濱水河炸雞拼盤配精釀啤酒"]]}
+  ],
+  prep:"今日為行程最後一站，非常適合順道補貨澳洲伴手禮。因隔日即需打包行李，建議本日順便前往超市核對各箱行李托運重量。"
+},
+{
+  no:9, date:"7月20日（一）", title:"曼杜拉運河小鎮 Mandurah ▎加開海豚生態日",
+  sub:"搭船看野生海豚與優美水岸生態", budget:"整天預估花費：約台幣 1,500 元",
+  weather:"🌤️ 天氣預報：10°C - 16°C ▎運河海風極寒、務必加強頭部防風",
+  story:"曼杜拉（Mandurah）是伯斯南邊著名的藍色水岸生態城鎮，以廣大的運河網路與野生巨型瓶鼻海豚聞名。此區運河與豪宅交織，是西澳知名的生態休閒勝地，大眾運輸亦能直達。",
+  transport:{text:"自住處搭車前往 Canning Bridge Station，搭乘火車 (Mandurah Line) 直達終點 Mandurah 站（約 40 分鐘）。出站後於火車站轉乘當地公車 <b>588 或 589 號</b> 10 分鐘即可直達 Foreshore 水岸核心區。", dest:"Mandurah Foreshore, Mandurah WA 6210", mode:"transit"},
+  spots:[
+    {name:"曼杜拉前海灘與運河步道 Mandurah Foreshore", dest:"Mandurah Foreshore, Mandurah WA 6210", note:"風景優美的公共親水沿岸，有極高機率看見野生海豚游至岸邊。"},
+    {name:"海豚生態巡航船 Mandurah Dolphin Cruise", dest:"Mandurah Dolphin Cruise, Mandurah", note:"搭乘約 1 小時的生態觀光船，近距離看野生海豚嬉戲與運河豪宅群。"}
+  ],
+  meals:[
+    {tag:"早餐", name:"Dome Cafe (Mandurah Foreshore 店)", note:"直面美麗運河大港的經典連鎖。人均約 AU$15。", dest:"Dome Cafe Mandurah Foreshore", tags:[]},
+    {tag:"午餐", name:"Mandurah 沿岸平價魚薯或美式輕食", note:"水岸碼頭兩側有多家平價戶外餐廳。人均約 AU$25。", dest:"Mandurah Foreshore", tags:[["tag-eat","必吃美食","現炸鱈魚薯條佐塔塔醬 / 炭烤培根牛肉堡"]]},
+    {tag:"晚餐", name:"The Rowing Pavilion (回程河畔餐)", note:"火車回程於 Canning Bridge 站下車直達。人均約 AU$30。", dest:"The Rowing Pavilion, Mount Pleasant", tags:[["tag-menu","必點菜單","慢燉小牛頰肉飯 / 窯烤松露野菇薄餅"]]}
+  ],
+  prep:"<b>【重要預約代號】</b>：海豚生態船非常熱門，建議提前於官網完成線上訂位，並在此處編輯更新預約代號：<span contenteditable='true' class='pack-text font-bold text-red-700 underline px-1' style='display:inline;'>[填寫代號]</span>。冬季甲板風大，必須攜帶厚外套、毛帽與保暖手套。"
+}
+];
+
+function dayCardHTML(d){
+  const meals = d.meals.map(m=>{
+    const tags = m.tags.map(t=>tagHtml(t[0],t[1],t[2])).join("");
+    return '<div class="meal">'+
+      '<span class="meal-tag">'+m.tag+'</span>'+
+      '<div class="meal-name">'+m.name+'</div>'+
+      '<div class="meal-note">'+m.note+'</div>'+
+      (tags? '<div class="my-1.5 flex flex-wrap">'+tags+'</div>' : '')+
+      navBtn("導航前往店家", m.dest, "transit")+
+      '</div>';
+  }).join("");
+
+  const spots = d.spots.map(s=>{
+    return '<div style="margin-bottom:12px;">'+
+      '<div class="meal-name font-bold text-gray-800">'+s.name+'</div>'+
+      '<div class="meal-note text-sm text-gray-600 mt-0.5">'+s.note+'</div>'+
+      navBtn("導航前往景點", s.dest, "transit")+
+      '</div>';
+  }).join("");
+
+  const doneId = "day-done-"+d.no;
+  const doneChecked = STORE[doneId] ? "checked" : "";
+
+  return ''+
+  '<article class="card">'+
+    '<div class="day-head">'+
+      '<span class="seal">'+d.no+'</span>'+
+      '<div class="titles">'+
+        '<h3>'+d.date+' '+d.title+'</h3>'+
+        '<div class="day-sub font-medium text-amber-800 mt-0.5">'+d.weather+'</div>'+
+      '</div>'+
+      '<span class="budget-chip">'+d.budget+'</span>'+
+    '</div>'+
+    '<div class="story">'+d.story+'</div>'+
+    '<div class="block"><h4>🚌 大眾運輸與Uber動線</h4><p>'+d.transport.text+'</p>'+navBtn("開啟大眾運輸導航", d.transport.dest, "transit")+'</div>'+
+    '<div class="block"><h4>🏛️ 景點導覽</h4>'+spots+'</div>'+
+    '<div class="block"><h4>🍴 附近三餐推薦規劃 (均值台幣500內)</h4>'+meals+'</div>'+
+    '<div class="block"><h4>💡 導遊行前攻略提示</h4><p class="text-sm text-gray-700">'+d.prep+'</p></div>'+
+    '<label class="done-toggle"><input type="checkbox" data-done-id="'+doneId+'" '+doneChecked+'>標記這天行程已完成</label>'+
+  '</article>';
+}
+
+(function(){
+  const root = document.getElementById("itineraryRoot");
+  root.innerHTML = days.map(dayCardHTML).join("");
+  root.addEventListener("change", function(e){
+    if(e.target.matches("[data-done-id]")){
+      STORE[e.target.dataset.doneId] = e.target.checked;
+      saveStore(STORE);
+    }
+  });
+})();
+
+/* ============================================================
+   PAGE 4 — 在地日常想探店的清單 (Waterford Plaza 與市區)
+============================================================ */
+const foodNear = [
+  {name:"Kitchen Inn (Waterford Plaza)", dest:"Kitchen Inn, Waterford Plaza", note:"離 Manning 住處極近！主打極正宗星馬砂拉越乾盤麵 (Kolo Mee) 與叻沙，上菜極快，每道約 $15 AUD。"},
+  {name:"Chilliz (Waterford Plaza)", dest:"Chilliz, Waterford Plaza", note:"伯斯著名的超平價星馬便當補給站。香醬炸雞飯、椰漿飯只要約 $10-12 AUD，省錢果腹首選。"},
+  {name:"The Smokey Crust (Manning 本地)", dest:"The Smokey Crust, Manning", note:"隱身於 Manning 本地街區內的現做窯烤薄皮披薩，大披薩約 $15 AUD，焦香十足。"},
+  {name:"Gusto Gelato (South Perth Foreshore)", dest:"Gusto Gelato, South Perth", note:"南伯斯河岸最火紅的手工義式冰淇淋。推薦帶一球到天鵝河岸步道邊散步一邊享用。"},
+  {name:"Curtin University 校園平價咖啡廳", dest:"Curtin University, Bentley", note:"鄰近大學校區，提供許多極划算的晨間手沖咖啡與三明治輕食，適合在此用電腦。"}
+];
+const foodCity = [
+  {name:"Howard's Groove (市中心 CBD)", dest:"Howard's Groove, Perth", note:"知名精品咖啡。推薦特調「燕麥聖安娜冷萃」，層次分明，熱壓吐司表現極佳。"},
+  {name:"Community Coffee Co. (Subiaco 質感區)", dest:"Community Coffee Co., Subiaco", note:"極簡現代工業風，自烘豆 Loot Coffee 風味醇厚穩定，在當地咖啡客圈中評價極高。"},
+  {name:"Hifumiya Udon Noodle House (市中心)", dest:"Hifumiya Udon, Perth", note:"市區性價比最高的隱密食堂。現下手打烏龍麵清甜Q彈，每碗只要 $12-18 AUD。"},
+  {name:"The Re Store (北橋 Northbridge)", dest:"The Re Store, Northbridge", note:"百年老字號傳統義式熟食雜貨店。招牌義式煙燻肉捲三明治 (Continental Roll) 用料爆滿澎湃。"},
+  {name:"Taka's Kitchen (北橋區老字號)", dest:"Taka's Kitchen, Northbridge", note:"陪伴無數留學生的超平價日式食堂。大份炸雞排蓋飯、咖哩便當只要約 $15 AUD，便宜大碗。"}
+];
+function placeListHTML(list){
+  return '<div class="card">'+list.map(p=>{
+    return '<div class="place-card"><span class="place-mark"></span>'+
+      '<div class="flex-1"><h4>'+p.name+'</h4><p>'+p.note+'</p>'+navBtn("開啟地圖導航", p.dest, "transit")+'</div></div>';
+  }).join("")+'</div>';
+}
+document.getElementById("food-near").innerHTML = placeListHTML(foodNear);
+document.getElementById("food-city").innerHTML = placeListHTML(foodCity);
+
+document.getElementById("foodSegment").addEventListener("click", function(e){
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  this.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll("#page-food .subpage").forEach(s=>s.classList.remove("active"));
+  document.getElementById(btn.dataset.sub).classList.add("active");
+});
+
+/* ============================================================
+   PAGE 5 — 完整還原原手帖英文常用語 (包含 .ctx 斜體背景)
+============================================================ */
+const phraseGroups = [
+  { cat:"交通搭乘", items:[
+    ["Excuse me, does this bus go to Elizabeth Quay?","不好意思，這班公車會到伊麗莎白港嗎？","上車前向司機確認方向"],
+    ["Could you let me know when we reach my stop, please?","可以麻煩到站時提醒我一下嗎？","適合不熟路線時請司機協助"],
+    ["Sorry, is this seat taken?","不好意思，這個座位有人坐嗎？","公車或火車上詢問空位"],
+    ["Thank you so much, have a great day!","非常感謝，祝你今天順利！","下車時向司機道謝"]
+  ]},
+  { cat:"點餐用餐", items:[
+    ["Hi, could I get a recommendation for something local?","你好，可以推薦一個比較有當地特色的餐點嗎？","請店員推薦招牌菜"],
+    ["Could you make it less spicy, please?","可以麻煩做不辣一點嗎？","調整辣度的禮貌說法"],
+    ["Is this dish vegetarian / gluten-free?","這道菜是素食／不含麩質嗎？","詢問飲食限制"],
+    ["Could I get the bill, please? Thank you!","可以麻煩結帳嗎？謝謝！","用餐結束禮貌結帳"],
+    ["Could I have this to take away, please?","可以幫我打包外帶嗎？","外帶用語"]
+  ]},
+  { cat:"購物消費", items:[
+    ["Excuse me, how much is this?","不好意思，這個多少錢？","詢問價格"],
+    ["Could I try this on, please?","可以試穿這件嗎？","試穿衣物用語"],
+    ["Could I get a receipt, please?","可以給我收據嗎？","報帳或退稅用"],
+    ["Is there a discount if I buy more than one?","如果買多件會有折扣嗎？","詢問優惠"]
+  ]},
+  { cat:"問路與位置", items:[
+    ["Excuse me, could you tell me how to get to the train station?","不好意思，可以告訴我怎麼去火車站嗎？","主動詢問路人"],
+    ["Is it within walking distance from here?","這裡走過去會很遠嗎？","確認步行可行性"],
+    ["Thank you, I really appreciate your help.","謝謝你，真的很感謝你的幫忙。","道謝用語，誠懇有禮"]
+  ]},
+  { cat:"求助與緊急狀況", items:[
+    ["Excuse me, could you help me for a moment?","不好意思，可以請你幫修一下嗎？","開場請求協助"],
+    ["I think I've lost my phone, could you help me find it?","我的手機好像不見了，可以幫我找找嗎？","物品遺失時使用"],
+    ["Is there a pharmacy nearby?","附近有藥局嗎？","尋找藥局"],
+    ["Could you call for help, please? It's an emergency.","可以麻煩幫忙叫人協助嗎？這是緊急狀況。","緊急狀況求助"]
+  ]},
+  { cat:"日常社交與禮貌", items:[
+    ["Good morning! Lovely weather today, isn't it?","早安！今天天氣真不錯，對吧？","輕鬆的開場閒聊"],
+    ["Would you mind taking a photo for us, please?","可以麻煩幫我們拍張照嗎？","請路人協助拍照"],
+    ["I'm so sorry, I didn't mean to bump into you.","真的很抱歉，我不是故意撞到你的。","道歉用語"],
+    ["Thank you for your patience, I really appreciate it.","謝謝你的耐心，真的很感謝。","感謝對方耐心對待"]
+  ]}
+];
+(function(){
+  const root = document.getElementById("phrasesRoot");
+  root.innerHTML = phraseGroups.map(g=>{
+    const items = g.items.map(p=>{
+      return '<div class="phrase"><div class="en">'+p[0]+'</div><div class="zh">'+p[1]+'</div><div class="ctx">'+p[2]+'</div></div>';
+    }).join("");
+    return '<div class="card"><h3>'+g.cat+'</h3><div class="divider" style="margin:8px 0;"></div>'+items+'</div>';
+  }).join("");
+})();
+
+/* ============================================================
+   PAGE 6 — 新加坡樟宜機場轉機完整時間軸與攻略
+============================================================ */
+(function(){
+  const root = document.getElementById("transitRoot");
+  root.innerHTML =
+  '<div class="card">'+
+    '<h3>去程轉機 ▎10 小時 5 分鐘（04:15 – 14:20）</h3>'+
+    '<div class="notice">行李直掛伯斯，轉機免提行李。但需預先填好 SG Arrival Card 電子入境卡才可查驗通關出境。</div>'+
+    '<p style="font-size:14px; color:var(--ink);">酷航全部起降皆在 <b>T1</b>。清晨 04:15 降落後店家未開，建議先至 T1 3樓過境區的 <b>Snooze Lounge 免費躺椅休息區</b> 補眠與洗漱。早上 06:00 後刷護照通關出海關，即可直接步行 5 分鐘抵達正對面的 <b>Jewel 星耀樟宜</b> 園區。</p>'+
+    '<div class="story"><b>巨型雨林瀑布（雨漩渦）早上 10:00 準時開始放水</b>。建議準時在瀑布前卡位，此時遊客最稀少，最容易捕捉震撼的無人背景照片。</div>'+
+    '<div class="block"><h4>餐飲與探店推薦</h4><p style="font-size:13.5px;">早餐推薦前往 Jewel B2 享用 <b>亞坤咖椰吐司</b> 或 <b>松發肉骨茶</b>。午餐推薦洽詢服務台前往專屬對外開放的 <b>T1 員工餐廳 (Orchid Food Court)</b>，體驗最道地、平價物美的新加坡炒米粉與南洋庶民小吃。</p>'+navBtn("導航前往星耀樟宜 Jewel", "Jewel Changi Airport, Singapore", "walking")+'</div>'+
+    '<div class="notice" style="margin-top:14px;">重要安全提示：樟宜機場的隨身行李安檢一律設置在「各登機門正前方」。請務必於下午 13:00 前返回 T1 航廈並抵達指定登機門前排隊接受安檢，避免延誤 14:20 飛往伯斯的航班。</div>'+
+  '</div>'+
+  '<div class="card">'+
+    '<h3>回程轉機 ▎1 小時 15 分鐘（23:45 – 01:00，隔日短轉機）</h3>'+
+    '<div class="notice">轉機時程極短且正值深夜，請直接留在 T1 航廈管制過境區內，切勿輕易通關出境。</div>'+
+    '<p style="font-size:14px; color:var(--ink);">兩段航班同樣皆在 <b>T1</b> 航廈，不需跨航廈移動。下飛機後請緊隨「Transfer／轉機」綠色看板指標前進，重新過安檢後直奔登機門。深夜時段多數免稅店均歇業，可在 24 小時營業的超商快速調整休息，做好下一段夜間長途飛行的補水準備。</p>'+
+  '</div>';
+})();
+</script>
+</body>
+</html>
